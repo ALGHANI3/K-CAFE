@@ -46,7 +46,7 @@
       margin-bottom: 5px;
       font-weight: bold;
     }
-    select, input[type="number"] {
+    select, input[type="number"], input[type="text"] { /* Added text input for product name in inventory */
       padding: 10px;
       margin-bottom: 15px;
       font-size: 16px;
@@ -54,6 +54,20 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
+    }
+     .inventory-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+    .inventory-item input[type="text"] {
+        flex-grow: 1;
+        margin-right: 10px;
+        margin-bottom: 0; /* Remove bottom margin */
+    }
+     .inventory-item input[type="number"] {
+        width: 80px; /* Smaller width for quantity */
+        margin-bottom: 0; /* Remove bottom margin */
     }
     button.btn {
       display: block;
@@ -90,6 +104,17 @@
     }
     button.btn-remove:hover {
         background-color: #c82333;
+    }
+     button.btn-add-inventory {
+        background-color: #28a745; /* Green color for add inventory */
+        color: white;
+        padding: 8px 15px;
+        font-size: 16px;
+        width: auto;
+        margin-top: 10px;
+    }
+     button.btn-add-inventory:hover {
+        background-color: #218838;
     }
 
     table {
@@ -159,6 +184,30 @@
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         display: none; /* Hidden by default */
     }
+    #inventorySection {
+        margin-top: 30px;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.9);
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    #inventorySection h3 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 15px;
+    }
+    #initialInventoryForm {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #ccc;
+    }
+    #currentInventory {
+        margin-top: 15px;
+    }
+    #currentInventory p {
+        margin-bottom: 8px;
+        font-size: 16px;
+    }
   </style>
 </head>
 <body>
@@ -217,6 +266,25 @@
   <p>Profit/Loss: <span id="profitLossDisplay">0.00</span></p>
 </div>
 
+<div id="inventorySection">
+    <h3>Inventory Tracking</h3>
+
+    <div id="initialInventoryForm">
+        <h4>Set Initial Inventory (Will be saved in your browser)</h4>
+        <div id="initialInventoryInputs">
+            </div>
+        <button class="btn btn-add-inventory" onclick="addInitialInventoryField()">Add Product to Inventory</button>
+        <button class="btn btn-primary" onclick="saveInitialInventory()">Save Initial Inventory</button>
+    </div>
+
+    <div id="currentInventory">
+        <h4>Current Inventory Balance</h4>
+        <div id="currentInventoryDisplay">
+            </div>
+    </div>
+</div>
+
+
 <button class="btn" id="shareBtn" onclick="shareViaWhatsApp()">Share Day End Summary on WhatsApp</button>
 
 <div id="shareInstructions">
@@ -231,6 +299,9 @@
   let grandTotalPurchase = 0;
   let grandTotalSale = 0;
 
+  // Object to store current inventory (will be loaded from localStorage)
+  let currentInventory = {};
+
   // Function to display the current date
   function displayCurrentDate() {
       const today = new Date();
@@ -239,6 +310,86 @@
       document.getElementById('reportDate').textContent = `Date: ${formattedDate}`;
   }
 
+  // --- Inventory Functions ---
+
+  // Load inventory from localStorage
+  function loadInventory() {
+      const savedInventory = localStorage.getItem('kcafeInventory');
+      if (savedInventory) {
+          currentInventory = JSON.parse(savedInventory);
+      } else {
+          // Initialize with default products if no saved inventory
+          const products = document.querySelectorAll('#product option');
+          products.forEach(option => {
+              if (option.value !== "") {
+                  currentInventory[option.value] = 0; // Start with 0 for all products
+              }
+          });
+      }
+      displayCurrentInventory();
+  }
+
+  // Save inventory to localStorage
+  function saveInventory() {
+      localStorage.setItem('kcafeInventory', JSON.stringify(currentInventory));
+  }
+
+  // Display current inventory
+  function displayCurrentInventory() {
+      const inventoryDisplayDiv = document.getElementById('currentInventoryDisplay');
+      inventoryDisplayDiv.innerHTML = ''; // Clear previous display
+
+      for (const product in currentInventory) {
+          const p = document.createElement('p');
+          p.textContent = `${product}: ${currentInventory[product]}`;
+          inventoryDisplayDiv.appendChild(p);
+      }
+  }
+
+  // Add a field to the initial inventory form
+  function addInitialInventoryField() {
+      const initialInventoryInputsDiv = document.getElementById('initialInventoryInputs');
+
+      const itemDiv = document.createElement('div');
+      itemDiv.classList.add('inventory-item');
+
+      const productInput = document.createElement('input');
+      productInput.type = 'text';
+      productInput.placeholder = 'Product Name';
+
+      const quantityInput = document.createElement('input');
+      quantityInput.type = 'number';
+      quantityInput.placeholder = 'Quantity';
+      quantityInput.min = '0';
+      quantityInput.value = '0';
+
+      itemDiv.appendChild(productInput);
+      itemDiv.appendChild(quantityInput);
+      initialInventoryInputsDiv.appendChild(itemDiv);
+  }
+
+  // Save initial inventory from the form
+  function saveInitialInventory() {
+      const initialInventoryInputsDiv = document.getElementById('initialInventoryInputs');
+      const items = initialInventoryInputsDiv.querySelectorAll('.inventory-item');
+
+      items.forEach(item => {
+          const productName = item.querySelector('input[type="text"]').value.trim();
+          const quantity = parseInt(item.querySelector('input[type="number"]').value);
+
+          if (productName && !isNaN(quantity) && quantity >= 0) {
+              currentInventory[productName] = quantity;
+          }
+      });
+
+      saveInventory(); // Save to localStorage
+      displayCurrentInventory(); // Update display
+      // Optionally clear the initial inventory form fields
+      initialInventoryInputsDiv.innerHTML = '';
+  }
+
+
+  // --- Entry Functions ---
 
   function addEntry() {
     // Get values from the form inputs
@@ -260,6 +411,28 @@
     // Calculate unit price
     const unitPrice = price / quantity;
 
+    // Update inventory based on entry type
+    if (currentInventory.hasOwnProperty(product)) { // Check if product exists in inventory
+        if (entryType === 'Purchase') {
+            currentInventory[product] += quantity;
+        } else if (entryType === 'Sale') {
+            currentInventory[product] -= quantity;
+            // Optional: Add a check here to prevent selling more than available
+            if (currentInventory[product] < 0) {
+                console.log(`Warning: Selling more ${product} than available!`);
+                // You might want to revert the inventory change or show a message to the user
+                // For this example, we'll allow negative inventory for simplicity
+            }
+        }
+        saveInventory(); // Save updated inventory
+        displayCurrentInventory(); // Update inventory display
+    } else {
+        console.log(`Product "${product}" not found in inventory.`);
+        // You might want to add the product to inventory with the entered quantity
+        // For this example, we'll just log a message
+    }
+
+
     // Add to grand totals based on entry type
     if (entryType === 'Purchase') {
       grandTotalPurchase += total;
@@ -276,6 +449,9 @@
     // Store entry data in the row itself for easy access when removing
     newRow.dataset.entryType = entryType;
     newRow.dataset.total = total;
+    newRow.dataset.product = product; // Store product name
+    newRow.dataset.quantity = quantity; // Store quantity
+
 
     // Create and populate the table cells
     const entryTypeCell = newRow.insertCell();
@@ -319,19 +495,33 @@
       // Get the stored data from the row
       const entryType = rowElement.dataset.entryType;
       const total = parseFloat(rowElement.dataset.total);
+      const product = rowElement.dataset.product; // Get product name
+      const quantity = parseInt(rowElement.dataset.quantity); // Get quantity
+
 
       // Subtract the total from the grand total based on entry type
       if (entryType === 'Purchase') {
           grandTotalPurchase -= total;
+          // Revert inventory change
+          if (currentInventory.hasOwnProperty(product)) {
+              currentInventory[product] -= quantity;
+          }
       } else if (entryType === 'Sale') {
           grandTotalSale -= total;
+           // Revert inventory change
+           if (currentInventory.hasOwnProperty(product)) {
+              currentInventory[product] += quantity;
+           }
       }
 
       // Remove the row from the table
       rowElement.remove();
 
-      // Update the day end report display
+      // Update the day end report display and inventory display
       updateDayEndReportDisplay();
+      saveInventory(); // Save updated inventory
+      displayCurrentInventory(); // Update inventory display
+
   }
 
 
@@ -378,7 +568,14 @@
       const totalSale = document.getElementById('totalSaleDisplay').textContent;
       const profitLoss = document.getElementById('profitLossDisplay').textContent;
 
-      const message = `*K-CAFE Day End Report*\n${reportDate}\n\nTotal Purchase: ${totalPurchase}\nTotal Sale: ${totalSale}\nProfit/Loss: ${profitLoss}`;
+      // Include current inventory in the message
+      let inventorySummary = "\n*Current Inventory:*";
+      for (const product in currentInventory) {
+          inventorySummary += `\n${product}: ${currentInventory[product]}`;
+      }
+
+
+      const message = `*K-CAFE Day End Report*\n${reportDate}\n\nTotal Purchase: ${totalPurchase}\nTotal Sale: ${totalSale}\nProfit/Loss: ${profitLoss}${inventorySummary}`;
 
       // Replace 03442128439 with the actual number if needed, including country code without '+'
       const phoneNumber = '923442128439'; // Assuming Pakistan's country code +92
@@ -394,9 +591,10 @@
   }
 
 
-  // Initialize the day end report display and date on page load
+  // Initialize the day end report display, date, and load inventory on page load
   document.addEventListener('DOMContentLoaded', () => {
       displayCurrentDate();
+      loadInventory(); // Load inventory on page load
       updateDayEndReportDisplay();
   });
 
