@@ -16,17 +16,23 @@
       line-height: 1.6;
       color: #333;
     }
+    .header-container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
     h2 {
       text-align: center;
       color: #333;
-      margin-bottom: 10px; /* Adjusted margin */
+      margin: 0; /* Remove default margin */
       text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
+      flex-grow: 1; /* Allow heading to take available space */
     }
     #reportDate {
-        text-align: center;
         font-size: 1.1em;
         color: #555;
-        margin-bottom: 20px;
+        text-align: right; /* Align text to the right */
     }
     form {
       background: rgba(255, 255, 255, 0.9);
@@ -146,13 +152,17 @@
 </head>
 <body>
 
-<h2>K-CAFE - Daily Purchase & Sale Tracker</h2>
-<div id="reportDate"></div> <form id="entryForm">
+<div class="header-container">
+    <h2>K-CAFE - Daily Purchase & Sale Tracker</h2>
+    <div id="reportDate"></div> </div>
+
+
+<form id="entryForm">
   <label for="entryType">Entry Type:</label>
   <select id="entryType">
     <option value="Sale">Sale</option>
     <option value="Purchase">Purchase</option>
-  </select>
+    <option value="Side">Side</option> </select>
 
   <label for="product">Select Product:</label>
   <select id="product">
@@ -240,7 +250,7 @@
     const unitPrice = price / quantity;
 
     // Add to grand totals based on entry type
-    if (entryType === 'Purchase') {
+    if (entryType === 'Purchase' || entryType === 'Side') { // Added 'Side' to Purchase total
       grandTotalPurchase += total;
     } else if (entryType === 'Sale') {
       grandTotalSale += total;
