@@ -1,4 +1,5 @@
-# K-CAFE <!DOCTYPE html>
+K-CAFE 
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -20,8 +21,14 @@
     h2 {
       text-align: center;
       color: #333;
-      margin-bottom: 20px;
+      margin-bottom: 10px; /* Adjusted margin */
       text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
+    }
+    #reportDate {
+        text-align: center;
+        font-size: 1.1em;
+        color: #555;
+        margin-bottom: 20px;
     }
     form {
       background: rgba(255, 255, 255, 0.9);
@@ -142,8 +149,7 @@
 <body>
 
 <h2>K-CAFE - Daily Purchase & Sale Tracker</h2>
-
-<form id="entryForm">
+<div id="reportDate"></div> <form id="entryForm">
   <label for="entryType">Entry Type:</label>
   <select id="entryType">
     <option value="Sale">Sale</option>
@@ -205,6 +211,15 @@
   // Global variables to store total purchase and sale
   let grandTotalPurchase = 0;
   let grandTotalSale = 0;
+
+  // Function to display the current date
+  function displayCurrentDate() {
+      const today = new Date();
+      const options = { year: 'numeric', month: 'long', day: 'numeric' };
+      const formattedDate = today.toLocaleDateString('en-US', options); // Format as "May 7, 2025"
+      document.getElementById('reportDate').textContent = `Date: ${formattedDate}`;
+  }
+
 
   function addEntry() {
     // Get values from the form inputs
@@ -303,11 +318,12 @@
 
   // Function to share day end summary via WhatsApp
   function shareViaWhatsApp() {
+      const reportDate = document.getElementById('reportDate').textContent; // Get the date
       const totalPurchase = document.getElementById('totalPurchaseDisplay').textContent;
       const totalSale = document.getElementById('totalSaleDisplay').textContent;
       const profitLoss = document.getElementById('profitLossDisplay').textContent;
 
-      const message = `*K-CAFE Day End Report*\n\nTotal Purchase: ${totalPurchase}\nTotal Sale: ${totalSale}\nProfit/Loss: ${profitLoss}`;
+      const message = `*K-CAFE Day End Report*\n${reportDate}\n\nTotal Purchase: ${totalPurchase}\nTotal Sale: ${totalSale}\nProfit/Loss: ${profitLoss}`;
 
       // Replace 03442128439 with the actual number if needed, including country code without '+'
       const phoneNumber = '923442128439'; // Assuming Pakistan's country code +92
@@ -323,8 +339,11 @@
   }
 
 
-  // Initialize the day end report display on page load
-  document.addEventListener('DOMContentLoaded', updateDayEndReportDisplay);
+  // Initialize the day end report display and date on page load
+  document.addEventListener('DOMContentLoaded', () => {
+      displayCurrentDate();
+      updateDayEndReportDisplay();
+  });
 
 </script>
 
