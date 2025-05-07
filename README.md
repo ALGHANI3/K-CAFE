@@ -80,6 +80,17 @@
      button.btn-secondary:hover {
         background-color: #5a6268;
     }
+    button.btn-remove { /* Style for remove button */
+        background-color: #dc3545; /* Red color for remove */
+        color: white;
+        padding: 5px 10px; /* Smaller padding for table button */
+        font-size: 14px;
+        width: auto; /* Auto width for table button */
+        margin: 0; /* Remove margin */
+    }
+    button.btn-remove:hover {
+        background-color: #c82333;
+    }
 
     table {
       width: 100%;
@@ -162,7 +173,7 @@
   <select id="entryType">
     <option value="Sale">Sale</option>
     <option value="Purchase">Purchase</option>
-    <option value="Side">Side</option> </select>
+     </select>
 
   <label for="product">Select Product:</label>
   <select id="product">
@@ -172,8 +183,8 @@
     <option value="Tea">Tea</option>
     <option value="Fries">Fries</option>
     <option value="Chips">Chips</option>
-    <option value="Other">Other</option>
-    <option value="Can">Can</option> </select>
+    <option value="Can">Can</option>
+    <option value="Juice">Juice</option> </select>
 
   <label for="price">Total Price:</label>
   <input type="number" id="price" placeholder="Total Price" min="0">
@@ -193,7 +204,7 @@
       <th>Quantity</th>
       <th>Unit Price</th>
       <th>Total</th>
-    </tr>
+      <th>Remove</th> </tr>
   </thead>
   <tbody>
     </tbody>
@@ -250,7 +261,7 @@
     const unitPrice = price / quantity;
 
     // Add to grand totals based on entry type
-    if (entryType === 'Purchase' || entryType === 'Side') { // Added 'Side' to Purchase total
+    if (entryType === 'Purchase') {
       grandTotalPurchase += total;
     } else if (entryType === 'Sale') {
       grandTotalSale += total;
@@ -261,6 +272,10 @@
 
     // Create a new table row
     const newRow = tableBody.insertRow();
+
+    // Store entry data in the row itself for easy access when removing
+    newRow.dataset.entryType = entryType;
+    newRow.dataset.total = total;
 
     // Create and populate the table cells
     const entryTypeCell = newRow.insertCell();
@@ -281,12 +296,44 @@
     const totalCell = newRow.insertCell();
     totalCell.textContent = total.toFixed(2); // Display total price entered again (or could be removed if Unit Price is sufficient)
 
+    // Add remove button cell
+    const removeCell = newRow.insertCell();
+    const removeButton = document.createElement('button');
+    removeButton.textContent = 'Remove';
+    removeButton.classList.add('btn', 'btn-remove');
+    removeButton.onclick = function() {
+        removeEntry(newRow); // Pass the row element to the remove function
+    };
+    removeCell.appendChild(removeButton);
+
+
     // Update the day end report display
     updateDayEndReportDisplay();
 
     // Clear the form inputs after adding entry
     clearForm();
   }
+
+  // Function to remove an entry
+  function removeEntry(rowElement) {
+      // Get the stored data from the row
+      const entryType = rowElement.dataset.entryType;
+      const total = parseFloat(rowElement.dataset.total);
+
+      // Subtract the total from the grand total based on entry type
+      if (entryType === 'Purchase') {
+          grandTotalPurchase -= total;
+      } else if (entryType === 'Sale') {
+          grandTotalSale -= total;
+      }
+
+      // Remove the row from the table
+      rowElement.remove();
+
+      // Update the day end report display
+      updateDayEndReportDisplay();
+  }
+
 
   // Function to clear the form inputs
   function clearForm() {
