@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -46,7 +47,7 @@
       margin-bottom: 5px;
       font-weight: bold;
     }
-    select, input[type="number"], input[type="text"] { /* Added text input for product name in inventory */
+    select, input[type="number"], input[type="text"] {
       padding: 10px;
       margin-bottom: 15px;
       font-size: 16px;
@@ -94,7 +95,7 @@
      button.btn-secondary:hover {
         background-color: #5a6268;
     }
-    button.btn-remove { /* Style for remove button */
+    button.btn-remove { /* Style for remove button in table */
         background-color: #dc3545; /* Red color for remove */
         color: white;
         padding: 5px 10px; /* Smaller padding for table button */
@@ -105,7 +106,7 @@
     button.btn-remove:hover {
         background-color: #c82333;
     }
-     button.btn-add-inventory {
+     button.btn-add-inventory { /* Style for add inventory button */
         background-color: #28a745; /* Green color for add inventory */
         color: white;
         padding: 8px 15px;
@@ -116,6 +117,19 @@
      button.btn-add-inventory:hover {
         background-color: #218838;
     }
+    button.btn-remove-inventory { /* Style for remove inventory button */
+        background-color: #dc3545; /* Red color */
+        color: white;
+        padding: 4px 8px; /* Smaller padding */
+        font-size: 12px;
+        margin-left: 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+     button.btn-remove-inventory:hover {
+        background-color: #c82333;
+    }
+
 
     table {
       width: 100%;
@@ -201,12 +215,29 @@
         padding-bottom: 15px;
         border-bottom: 1px solid #ccc;
     }
+     #addCurrentInventoryItemForm {
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid #ccc;
+    }
     #currentInventory {
         margin-top: 15px;
     }
-    #currentInventory p {
+    #currentInventoryList {
+        list-style: none;
+        padding: 0;
+    }
+    #currentInventoryList li {
         margin-bottom: 8px;
         font-size: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 5px 0;
+        border-bottom: 1px dashed #eee;
+    }
+    #currentInventoryList li span {
+        flex-grow: 1;
     }
   </style>
 </head>
@@ -270,17 +301,29 @@
     <h3>Inventory Tracking</h3>
 
     <div id="initialInventoryForm">
-        <h4>Set Initial Inventory (Will be saved in your browser)</h4>
+        <h4>Set Initial Inventory (Use once for initial setup)</h4>
         <div id="initialInventoryInputs">
             </div>
-        <button class="btn btn-add-inventory" onclick="addInitialInventoryField()">Add Product to Inventory</button>
+        <button class="btn btn-add-inventory" onclick="addInitialInventoryField()">Add Product to Initial Inventory</button>
         <button class="btn btn-primary" onclick="saveInitialInventory()">Save Initial Inventory</button>
+        <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Use this section only for setting up your inventory for the first time or adding multiple items initially.</p>
     </div>
+
+     <div id="addCurrentInventoryItemForm">
+        <h4>Add/Update Single Product in Inventory</h4>
+        <div class="inventory-item">
+            <input type="text" id="newInventoryProductName" class="inventory-product-name" placeholder="Product Name">
+            <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
+        </div>
+        <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button>
+         <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name and quantity to add a new product or update an existing one.</p>
+    </div>
+
 
     <div id="currentInventory">
         <h4>Current Inventory Balance</h4>
-        <div id="currentInventoryDisplay">
-            </div>
+        <ul id="currentInventoryList">
+            </ul>
     </div>
 </div>
 
@@ -318,11 +361,11 @@
       if (savedInventory) {
           currentInventory = JSON.parse(savedInventory);
       } else {
-          // Initialize with default products if no saved inventory
+          // Initialize with products from the select dropdown if no saved inventory
           const products = document.querySelectorAll('#product option');
           products.forEach(option => {
               if (option.value !== "") {
-                  currentInventory[option.value] = 0; // Start with 0 for all products
+                  currentInventory[option.value] = 0; // Start with 0 for all products in the dropdown
               }
           });
       }
@@ -336,14 +379,20 @@
 
   // Display current inventory
   function displayCurrentInventory() {
-      const inventoryDisplayDiv = document.getElementById('currentInventoryDisplay');
-      inventoryDisplayDiv.innerHTML = ''; // Clear previous display
+      const inventoryList = document.getElementById('currentInventoryList');
+      inventoryList.innerHTML = ''; // Clear previous display
 
-      for (const product in currentInventory) {
-          const p = document.createElement('p');
-          p.textContent = `${product}: ${currentInventory[product]}`;
-          inventoryDisplayDiv.appendChild(p);
-      }
+      // Sort inventory items alphabetically by product name for consistent display
+      const sortedProducts = Object.keys(currentInventory).sort();
+
+      sortedProducts.forEach(product => {
+          const listItem = document.createElement('li');
+          listItem.innerHTML = `
+              <span>${product}: ${currentInventory[product]}</span>
+              <button class="btn-remove-inventory" onclick="removeInventoryItem('${product}')">Remove</button>
+          `;
+          inventoryList.appendChild(listItem);
+      });
   }
 
   // Add a field to the initial inventory form
@@ -355,10 +404,12 @@
 
       const productInput = document.createElement('input');
       productInput.type = 'text';
+      productInput.classList.add('inventory-product-name'); // Add a class for easier selection
       productInput.placeholder = 'Product Name';
 
       const quantityInput = document.createElement('input');
       quantityInput.type = 'number';
+      quantityInput.classList.add('inventory-quantity'); // Add a class for easier selection
       quantityInput.placeholder = 'Quantity';
       quantityInput.min = '0';
       quantityInput.value = '0';
@@ -374,8 +425,11 @@
       const items = initialInventoryInputsDiv.querySelectorAll('.inventory-item');
 
       items.forEach(item => {
-          const productName = item.querySelector('input[type="text"]').value.trim();
-          const quantity = parseInt(item.querySelector('input[type="number"]').value);
+          const productNameInput = item.querySelector('.inventory-product-name'); // Use class selector
+          const quantityInput = item.querySelector('.inventory-quantity'); // Use class selector
+
+          const productName = productNameInput.value.trim();
+          const quantity = parseInt(quantityInput.value);
 
           if (productName && !isNaN(quantity) && quantity >= 0) {
               currentInventory[productName] = quantity;
@@ -384,8 +438,37 @@
 
       saveInventory(); // Save to localStorage
       displayCurrentInventory(); // Update display
-      // Optionally clear the initial inventory form fields
+      // Optionally clear the initial inventory form fields after saving
       initialInventoryInputsDiv.innerHTML = '';
+  }
+
+  // Add or Update a single product in the current inventory
+  function addNewInventoryItem() {
+      const productNameInput = document.getElementById('newInventoryProductName');
+      const quantityInput = document.getElementById('newInventoryQuantity');
+
+      const productName = productNameInput.value.trim();
+      const quantity = parseInt(quantityInput.value);
+
+      if (productName && !isNaN(quantity) && quantity >= 0) {
+          currentInventory[productName] = quantity; // Add or update the quantity
+          saveInventory(); // Save to localStorage
+          displayCurrentInventory(); // Update display
+          // Clear the input fields
+          productNameInput.value = '';
+          quantityInput.value = '0';
+      } else {
+          console.log('Please enter a valid product name and quantity.');
+      }
+  }
+
+  // Remove a product from the inventory
+  function removeInventoryItem(productName) {
+      if (currentInventory.hasOwnProperty(productName)) {
+          delete currentInventory[productName]; // Remove the product
+          saveInventory(); // Save to localStorage
+          displayCurrentInventory(); // Update display
+      }
   }
 
 
@@ -414,12 +497,12 @@
     // Update inventory based on entry type
     if (currentInventory.hasOwnProperty(product)) { // Check if product exists in inventory
         if (entryType === 'Purchase') {
-            currentInventory[product] += quantity;
+            currentInventory[product] += quantity; // Add quantity for purchase
         } else if (entryType === 'Sale') {
-            currentInventory[product] -= quantity;
+            currentInventory[product] -= quantity; // Subtract quantity for sale
             // Optional: Add a check here to prevent selling more than available
             if (currentInventory[product] < 0) {
-                console.log(`Warning: Selling more ${product} than available!`);
+                console.log(`Warning: Selling more ${product} than available! Current inventory: ${currentInventory[product]}`);
                 // You might want to revert the inventory change or show a message to the user
                 // For this example, we'll allow negative inventory for simplicity
             }
@@ -427,9 +510,11 @@
         saveInventory(); // Save updated inventory
         displayCurrentInventory(); // Update inventory display
     } else {
-        console.log(`Product "${product}" not found in inventory.`);
-        // You might want to add the product to inventory with the entered quantity
-        // For this example, we'll just log a message
+        console.log(`Product "${product}" not found in inventory. Adding to inventory with current quantity.`);
+        // If product not in inventory, add it with the current quantity
+        currentInventory[product] = quantity;
+        saveInventory();
+        displayCurrentInventory();
     }
 
 
@@ -504,13 +589,13 @@
           grandTotalPurchase -= total;
           // Revert inventory change
           if (currentInventory.hasOwnProperty(product)) {
-              currentInventory[product] -= quantity;
+              currentInventory[product] -= quantity; // Subtract quantity when removing purchase
           }
       } else if (entryType === 'Sale') {
           grandTotalSale -= total;
            // Revert inventory change
            if (currentInventory.hasOwnProperty(product)) {
-              currentInventory[product] += quantity;
+              currentInventory[product] += quantity; // Add quantity back when removing sale
            }
       }
 
@@ -570,9 +655,11 @@
 
       // Include current inventory in the message
       let inventorySummary = "\n*Current Inventory:*";
-      for (const product in currentInventory) {
+      // Sort inventory items alphabetically for the message
+      const sortedProducts = Object.keys(currentInventory).sort();
+      sortedProducts.forEach(product => {
           inventorySummary += `\n${product}: ${currentInventory[product]}`;
-      }
+      });
 
 
       const message = `*K-CAFE Day End Report*\n${reportDate}\n\nTotal Purchase: ${totalPurchase}\nTotal Sale: ${totalSale}\nProfit/Loss: ${profitLoss}${inventorySummary}`;
