@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+K-CAFE
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -70,6 +70,11 @@
         width: 80px; /* Smaller width for quantity */
         margin-bottom: 0; /* Remove bottom margin */
     }
+    .inventory-item input[type="number"].unit-cost { /* Style for unit cost input */
+        width: 100px; /* Slightly wider for cost */
+        margin-left: 10px;
+    }
+
     button.btn {
       display: block;
       width: 100%;
@@ -257,14 +262,7 @@
 
   <label for="product">Select Product:</label>
   <select id="product">
-    <option value="Water Bottle 1.5L">Water Bottle 1.5L</option>
-    <option value="Water Bottle 500ml">Water Bottle 500ml</option>
-    <option value="Cold Drinks">Cold Drinks</option>
-    <option value="Tea">Tea</option>
-    <option value="Fries">Fries</option>
-    <option value="Chips">Chips</option>
-    <option value="Can">Can</option>
-    <option value="Juice">Juice</option> </select>
+    </select>
 
   <label for="price">Total Price:</label>
   <input type="number" id="price" placeholder="Total Price" min="0">
@@ -306,7 +304,7 @@
             </div>
         <button class="btn btn-add-inventory" onclick="addInitialInventoryField()">Add Product to Initial Inventory</button>
         <button class="btn btn-primary" onclick="saveInitialInventory()">Save Initial Inventory</button>
-        <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Use this section only for setting up your inventory for the first time or adding multiple items initially.</p>
+        <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Use this section only for setting up your inventory for the first time or adding multiple items initially. Includes initial quantity and unit cost.</p>
     </div>
 
      <div id="addCurrentInventoryItemForm">
@@ -314,9 +312,10 @@
         <div class="inventory-item">
             <input type="text" id="newInventoryProductName" class="inventory-product-name" placeholder="Product Name">
             <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
+             <input type="number" id="newInventoryUnitCost" class="unit-cost" placeholder="Unit Cost" min="0" value="0">
         </div>
         <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button>
-         <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name and quantity to add a new product or update an existing one.</p>
+         <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one.</p>
     </div>
 
 
@@ -339,11 +338,16 @@
 
 <script>
   // Global variables to store total purchase and sale
-  let grandTotalPurchase = 0;
-  let grandTotalSale = 0;
+  let grandTotalPurchase = 0; // Total cost of goods purchased
+  let grandTotalSale = 0; // Total revenue from sales
+  let grandTotalSaleCost = 0; // Total cost of goods sold
 
   // Object to store current inventory (will be loaded from localStorage)
+  // Structure: { 'productName': { quantity: X, unitCost: Y } }
   let currentInventory = {};
+
+  // Array to store all product names ever added to inventory (for dropdown)
+  let allProductsAdded = [];
 
   // Function to display the current date
   function displayCurrentDate() {
@@ -355,26 +359,30 @@
 
   // --- Inventory Functions ---
 
-  // Load inventory from localStorage
+  // Load inventory and all products from localStorage
   function loadInventory() {
       const savedInventory = localStorage.getItem('kcafeInventory');
       if (savedInventory) {
           currentInventory = JSON.parse(savedInventory);
       } else {
-          // Initialize with products from the select dropdown if no saved inventory
-          const products = document.querySelectorAll('#product option');
-          products.forEach(option => {
-              if (option.value !== "") {
-                  currentInventory[option.value] = 0; // Start with 0 for all products in the dropdown
-              }
-          });
+          currentInventory = {};
       }
+
+      const savedProducts = localStorage.getItem('kcafeAllProducts');
+      if (savedProducts) {
+          allProductsAdded = JSON.parse(savedProducts);
+      } else {
+          allProductsAdded = [];
+      }
+
       displayCurrentInventory();
+      updateProductDropdown(); // Update the product dropdown on load
   }
 
-  // Save inventory to localStorage
+  // Save inventory and all products to localStorage
   function saveInventory() {
       localStorage.setItem('kcafeInventory', JSON.stringify(currentInventory));
+      localStorage.setItem('kcafeAllProducts', JSON.stringify(allProductsAdded));
   }
 
   // Display current inventory
@@ -385,15 +393,41 @@
       // Sort inventory items alphabetically by product name for consistent display
       const sortedProducts = Object.keys(currentInventory).sort();
 
-      sortedProducts.forEach(product => {
+      sortedProducts.forEach(productName => {
+          const item = currentInventory[productName];
           const listItem = document.createElement('li');
           listItem.innerHTML = `
-              <span>${product}: ${currentInventory[product]}</span>
-              <button class="btn-remove-inventory" onclick="removeInventoryItem('${product}')">Remove</button>
+              <span>${productName}: ${item.quantity} (Cost: ${item.unitCost.toFixed(2)} each)</span>
+              <button class="btn-remove-inventory" onclick="removeInventoryItem('${productName}')">Remove</button>
           `;
           inventoryList.appendChild(listItem);
       });
   }
+
+    // Update the product select dropdown based on all products ever added
+    function updateProductDropdown() {
+        const productSelect = document.getElementById('product');
+        productSelect.innerHTML = ''; // Clear existing options
+
+        // Add a default disabled option
+        const defaultOption = document.createElement('option');
+        defaultOption.value = "";
+        defaultOption.textContent = "Select Product";
+        defaultOption.disabled = true;
+        defaultOption.selected = true;
+        productSelect.appendChild(defaultOption);
+
+        // Sort all products alphabetically
+        const sortedAllProducts = allProductsAdded.sort();
+
+        sortedAllProducts.forEach(productName => {
+            const option = document.createElement('option');
+            option.value = productName;
+            option.textContent = productName;
+            productSelect.appendChild(option);
+        });
+    }
+
 
   // Add a field to the initial inventory form
   function addInitialInventoryField() {
@@ -404,18 +438,28 @@
 
       const productInput = document.createElement('input');
       productInput.type = 'text';
-      productInput.classList.add('inventory-product-name'); // Add a class for easier selection
+      productInput.classList.add('inventory-product-name');
       productInput.placeholder = 'Product Name';
 
       const quantityInput = document.createElement('input');
       quantityInput.type = 'number';
-      quantityInput.classList.add('inventory-quantity'); // Add a class for easier selection
+      quantityInput.classList.add('inventory-quantity');
       quantityInput.placeholder = 'Quantity';
       quantityInput.min = '0';
       quantityInput.value = '0';
 
+      const unitCostInput = document.createElement('input');
+      unitCostInput.type = 'number';
+      unitCostInput.classList.add('unit-cost');
+      unitCostInput.placeholder = 'Unit Cost';
+      unitCostInput.min = '0';
+      unitCostInput.value = '0';
+      unitCostInput.step = '0.01'; // Allow decimal values for cost
+
+
       itemDiv.appendChild(productInput);
       itemDiv.appendChild(quantityInput);
+      itemDiv.appendChild(unitCostInput); // Add unit cost input
       initialInventoryInputsDiv.appendChild(itemDiv);
   }
 
@@ -425,19 +469,28 @@
       const items = initialInventoryInputsDiv.querySelectorAll('.inventory-item');
 
       items.forEach(item => {
-          const productNameInput = item.querySelector('.inventory-product-name'); // Use class selector
-          const quantityInput = item.querySelector('.inventory-quantity'); // Use class selector
+          const productNameInput = item.querySelector('.inventory-product-name');
+          const quantityInput = item.querySelector('.inventory-quantity');
+          const unitCostInput = item.querySelector('.unit-cost'); // Get unit cost input
 
           const productName = productNameInput.value.trim();
           const quantity = parseInt(quantityInput.value);
+          const unitCost = parseFloat(unitCostInput.value); // Get unit cost value
 
-          if (productName && !isNaN(quantity) && quantity >= 0) {
-              currentInventory[productName] = quantity;
+          if (productName && !isNaN(quantity) && quantity >= 0 && !isNaN(unitCost) && unitCost >= 0) {
+              currentInventory[productName] = { quantity: quantity, unitCost: unitCost }; // Store quantity and unit cost
+              // Add product to the list of all products if not already there
+              if (!allProductsAdded.includes(productName)) {
+                  allProductsAdded.push(productName);
+              }
+          } else {
+               console.log(`Invalid input for ${productName}. Please check name, quantity, and unit cost.`);
           }
       });
 
       saveInventory(); // Save to localStorage
       displayCurrentInventory(); // Update display
+      updateProductDropdown(); // Update product dropdown
       // Optionally clear the initial inventory form fields after saving
       initialInventoryInputsDiv.innerHTML = '';
   }
@@ -446,28 +499,38 @@
   function addNewInventoryItem() {
       const productNameInput = document.getElementById('newInventoryProductName');
       const quantityInput = document.getElementById('newInventoryQuantity');
+      const unitCostInput = document.getElementById('newInventoryUnitCost'); // Get unit cost input
 
       const productName = productNameInput.value.trim();
       const quantity = parseInt(quantityInput.value);
+      const unitCost = parseFloat(unitCostInput.value); // Get unit cost value
 
-      if (productName && !isNaN(quantity) && quantity >= 0) {
-          currentInventory[productName] = quantity; // Add or update the quantity
+
+      if (productName && !isNaN(quantity) && quantity >= 0 && !isNaN(unitCost) && unitCost >= 0) {
+          currentInventory[productName] = { quantity: quantity, unitCost: unitCost }; // Add or update the quantity and unit cost
+           // Add product to the list of all products if not already there
+          if (!allProductsAdded.includes(productName)) {
+              allProductsAdded.push(productName);
+          }
           saveInventory(); // Save to localStorage
           displayCurrentInventory(); // Update display
+          updateProductDropdown(); // Update product dropdown
           // Clear the input fields
           productNameInput.value = '';
           quantityInput.value = '0';
+          unitCostInput.value = '0';
       } else {
-          console.log('Please enter a valid product name and quantity.');
+          console.log('Please enter a valid product name, quantity, and unit cost.');
       }
   }
 
-  // Remove a product from the inventory
+  // Remove a product from the inventory (only removes from current inventory, not the dropdown list)
   function removeInventoryItem(productName) {
       if (currentInventory.hasOwnProperty(productName)) {
-          delete currentInventory[productName]; // Remove the product
+          delete currentInventory[productName]; // Remove the product from current inventory
           saveInventory(); // Save to localStorage
-          displayCurrentInventory(); // Update display
+          displayCurrentInventory(); // Update display (product will disappear from inventory list)
+          // Product remains in allProductsAdded and thus in the dropdown
       }
   }
 
@@ -478,31 +541,40 @@
     // Get values from the form inputs
     const entryType = document.getElementById('entryType').value;
     const product = document.getElementById('product').value;
-    const price = parseFloat(document.getElementById('price').value);
+    const price = parseFloat(document.getElementById('price').value); // This is total price for the entry
     const quantity = parseInt(document.getElementById('quantity').value);
 
     // Validate inputs
-    if (!entryType || !product || isNaN(price) || isNaN(quantity) || price < 0 || quantity <= 0) {
+    if (!entryType || !product || isNaN(price) || price < 0 || isNaN(quantity) || quantity <= 0) {
       console.log('Please fill in all fields with valid numbers.');
       // In a real application, you would display a message on the page
       return;
     }
 
-    // Calculate total for the current entry
-    const total = price; // Total price is what the user enters now
+    // Calculate unit price for display in the table
+    const unitPriceDisplay = price / quantity;
 
-    // Calculate unit price
-    const unitPrice = price / quantity;
 
-    // Update inventory based on entry type
+    // Update inventory and financial totals based on entry type
     if (currentInventory.hasOwnProperty(product)) { // Check if product exists in inventory
         if (entryType === 'Purchase') {
-            currentInventory[product] += quantity; // Add quantity for purchase
+            currentInventory[product].quantity += quantity; // Add quantity for purchase
+            // Optional: Update unit cost based on purchase price (e.g., weighted average)
+            // For simplicity here, we'll just add to total purchase cost
+            grandTotalPurchase += price; // Add total purchase price to grand total purchase
         } else if (entryType === 'Sale') {
-            currentInventory[product] -= quantity; // Subtract quantity for sale
+            currentInventory[product].quantity -= quantity; // Subtract quantity for sale
+            grandTotalSale += price; // Add total sale price to grand total sale (revenue)
+
+            // Calculate Cost of Goods Sold (COGS) for this sale
+             // Ensure unitCost is a number, default to 0 if not available
+            const unitCost = currentInventory[product].unitCost ? parseFloat(currentInventory[product].unitCost) : 0;
+            const cogs = quantity * unitCost;
+            grandTotalSaleCost += cogs; // Add COGS to grand total COGS
+
             // Optional: Add a check here to prevent selling more than available
-            if (currentInventory[product] < 0) {
-                console.log(`Warning: Selling more ${product} than available! Current inventory: ${currentInventory[product]}`);
+            if (currentInventory[product].quantity < 0) {
+                console.log(`Warning: Selling more ${product} than available! Current inventory: ${currentInventory[product].quantity}`);
                 // You might want to revert the inventory change or show a message to the user
                 // For this example, we'll allow negative inventory for simplicity
             }
@@ -510,20 +582,12 @@
         saveInventory(); // Save updated inventory
         displayCurrentInventory(); // Update inventory display
     } else {
-        console.log(`Product "${product}" not found in inventory. Adding to inventory with current quantity.`);
-        // If product not in inventory, add it with the current quantity
-        currentInventory[product] = quantity;
-        saveInventory();
-        displayCurrentInventory();
+        console.log(`Product "${product}" not found in inventory. Please add it to inventory first.`);
+        // Prevent adding entry if product not in inventory (or add it with default cost?)
+        // For now, just log a message and don't add the entry
+        return; // Stop adding the entry
     }
 
-
-    // Add to grand totals based on entry type
-    if (entryType === 'Purchase') {
-      grandTotalPurchase += total;
-    } else if (entryType === 'Sale') {
-      grandTotalSale += total;
-    }
 
     // Get the table body
     const tableBody = document.querySelector('#dataTable tbody');
@@ -533,9 +597,16 @@
 
     // Store entry data in the row itself for easy access when removing
     newRow.dataset.entryType = entryType;
-    newRow.dataset.total = total;
+    newRow.dataset.total = price; // Store the total price of the entry
     newRow.dataset.product = product; // Store product name
     newRow.dataset.quantity = quantity; // Store quantity
+    // Store COGS for Sale entries to revert correctly
+    if (entryType === 'Sale') {
+        const unitCost = currentInventory[product].unitCost ? parseFloat(currentInventory[product].unitCost) : 0;
+        newRow.dataset.cogs = quantity * unitCost;
+    } else {
+         newRow.dataset.cogs = 0; // COGS is 0 for Purchase entries
+    }
 
 
     // Create and populate the table cells
@@ -552,10 +623,11 @@
     quantityCell.textContent = quantity;
 
     const unitPriceCell = newRow.insertCell(); // Cell for Unit Price
-    unitPriceCell.textContent = unitPrice.toFixed(2); // Display calculated unit price
+    unitPriceCell.textContent = unitPriceDisplay.toFixed(2); // Display calculated unit price for the entry
 
     const totalCell = newRow.insertCell();
-    totalCell.textContent = total.toFixed(2); // Display total price entered again (or could be removed if Unit Price is sufficient)
+    totalCell.textContent = price.toFixed(2); // Display total price entered again
+
 
     // Add remove button cell
     const removeCell = newRow.insertCell();
@@ -579,23 +651,26 @@
   function removeEntry(rowElement) {
       // Get the stored data from the row
       const entryType = rowElement.dataset.entryType;
-      const total = parseFloat(rowElement.dataset.total);
+      const total = parseFloat(rowElement.dataset.total); // Total price of the entry
       const product = rowElement.dataset.product; // Get product name
       const quantity = parseInt(rowElement.dataset.quantity); // Get quantity
+      const cogs = parseFloat(rowElement.dataset.cogs); // Get COGS for Sale entries
 
 
-      // Subtract the total from the grand total based on entry type
+      // Revert financial totals based on entry type
       if (entryType === 'Purchase') {
-          grandTotalPurchase -= total;
+          grandTotalPurchase -= total; // Subtract total purchase price
           // Revert inventory change
           if (currentInventory.hasOwnProperty(product)) {
-              currentInventory[product] -= quantity; // Subtract quantity when removing purchase
+              currentInventory[product].quantity -= quantity; // Subtract quantity when removing purchase
           }
       } else if (entryType === 'Sale') {
-          grandTotalSale -= total;
+          grandTotalSale -= total; // Subtract total sale price (revenue)
+          grandTotalSaleCost -= cogs; // Subtract COGS
+
            // Revert inventory change
            if (currentInventory.hasOwnProperty(product)) {
-              currentInventory[product] += quantity; // Add quantity back when removing sale
+              currentInventory[product].quantity += quantity; // Add quantity back when removing sale
            }
       }
 
@@ -614,7 +689,7 @@
   function clearForm() {
     document.getElementById('price').value = '';
     document.getElementById('quantity').value = '';
-    document.getElementById('product').selectedIndex = 0;
+    document.getElementById('product').selectedIndex = 0; // Reset product dropdown
     document.getElementById('entryType').selectedIndex = 0; // Reset entry type to Sale
   }
 
@@ -629,12 +704,12 @@
     const totalSaleDisplay = document.getElementById('totalSaleDisplay');
     const profitLossDisplay = document.getElementById('profitLossDisplay');
 
-    // Calculate profit/loss
-    const profitLoss = grandTotalSale - grandTotalPurchase;
+    // Calculate profit/loss using Total Sale Revenue and Total Cost of Goods Sold
+    const profitLoss = grandTotalSale - grandTotalSaleCost;
 
     // Update the display elements
-    totalPurchaseDisplay.textContent = grandTotalPurchase.toFixed(2);
-    totalSaleDisplay.textContent = grandTotalSale.toFixed(2);
+    totalPurchaseDisplay.textContent = grandTotalPurchase.toFixed(2); // Display total purchase cost
+    totalSaleDisplay.textContent = grandTotalSale.toFixed(2); // Display total sale revenue
 
     // Update profit/loss display and apply styling
     profitLossDisplay.textContent = profitLoss.toFixed(2);
@@ -657,12 +732,13 @@
       let inventorySummary = "\n*Current Inventory:*";
       // Sort inventory items alphabetically for the message
       const sortedProducts = Object.keys(currentInventory).sort();
-      sortedProducts.forEach(product => {
-          inventorySummary += `\n${product}: ${currentInventory[product]}`;
+      sortedProducts.forEach(productName => {
+          const item = currentInventory[productName];
+          inventorySummary += `\n${productName}: ${item.quantity} (Cost: ${item.unitCost.toFixed(2)} each)`;
       });
 
 
-      const message = `*K-CAFE Day End Report*\n${reportDate}\n\nTotal Purchase: ${totalPurchase}\nTotal Sale: ${totalSale}\nProfit/Loss: ${profitLoss}${inventorySummary}`;
+      const message = `*K-CAFE Day End Report*\n${reportDate}\n\nTotal Purchase Cost: ${totalPurchase}\nTotal Sale Revenue: ${totalSale}\nProfit/Loss: ${profitLoss}${inventorySummary}`;
 
       // Replace 03442128439 with the actual number if needed, including country code without '+'
       const phoneNumber = '923442128439'; // Assuming Pakistan's country code +92
@@ -681,7 +757,7 @@
   // Initialize the day end report display, date, and load inventory on page load
   document.addEventListener('DOMContentLoaded', () => {
       displayCurrentDate();
-      loadInventory(); // Load inventory on page load
+      loadInventory(); // Load inventory and all products on page load
       updateDayEndReportDisplay();
   });
 
