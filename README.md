@@ -13,31 +13,34 @@ K-CAFE
       background-repeat: no-repeat;
       background-attachment: fixed;
       background-position: center;
-      padding: 20px;
+      padding: 10px; /* Reduced padding for mobile */
       line-height: 1.6;
       color: #333;
     }
     .header-container {
         display: flex;
-        justify-content: space-between;
+        flex-direction: column; /* Stack elements vertically on small screens */
         align-items: center;
         margin-bottom: 20px;
+        text-align: center; /* Center text in the header */
     }
     h2 {
       text-align: center;
       color: #333;
-      margin: 0; /* Remove default margin */
+      margin: 0 0 10px 0; /* Adjusted margin */
       text-shadow: 1px 1px 2px rgba(255,255,255,0.7);
-      flex-grow: 1; /* Allow heading to take available space */
+      flex-grow: 1;
+      width: 100%; /* Full width on small screens */
     }
     #reportDate {
-        font-size: 1.1em;
+        font-size: 1em; /* Slightly smaller font for mobile */
         color: #555;
-        text-align: right; /* Align text to the right */
+        text-align: center; /* Center date on small screens */
+        width: 100%; /* Full width on small screens */
     }
     form {
       background: rgba(255, 255, 255, 0.9);
-      padding: 20px;
+      padding: 15px; /* Reduced padding for mobile */
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       margin-bottom: 20px;
@@ -51,35 +54,39 @@ K-CAFE
       padding: 10px;
       margin-bottom: 15px;
       font-size: 16px;
-      width: calc(100% - 22px);
+      width: 100%; /* Make inputs full width */
       border: 1px solid #ccc;
       border-radius: 4px;
       box-sizing: border-box;
     }
      .inventory-item {
         display: flex;
-        align-items: center;
+        flex-direction: column; /* Stack inventory item inputs vertically */
         margin-bottom: 10px;
+        border: 1px solid #eee; /* Add border for clarity */
+        padding: 10px;
+        border-radius: 4px;
     }
     .inventory-item input[type="text"] {
-        flex-grow: 1;
-        margin-right: 10px;
-        margin-bottom: 0; /* Remove bottom margin */
+        margin-right: 0; /* Remove right margin */
+        margin-bottom: 10px; /* Add bottom margin */
+        width: 100%; /* Full width */
     }
      .inventory-item input[type="number"] {
-        width: 80px; /* Smaller width for quantity */
-        margin-bottom: 0; /* Remove bottom margin */
+        width: 100%; /* Full width */
+        margin-bottom: 10px; /* Add bottom margin */
     }
-    .inventory-item input[type="number"].unit-cost { /* Style for unit cost input */
-        width: 100px; /* Slightly wider for cost */
-        margin-left: 10px;
+    .inventory-item input[type="number"].unit-cost {
+        width: 100%; /* Full width */
+        margin-left: 0; /* Remove left margin */
+        margin-bottom: 0; /* Remove bottom margin */
     }
 
     button.btn {
       display: block;
       width: 100%;
       padding: 12px;
-      margin-top: 10px; /* Added margin to separate buttons */
+      margin-top: 10px;
       font-size: 18px;
       border: none;
       border-radius: 4px;
@@ -103,10 +110,10 @@ K-CAFE
     button.btn-remove { /* Style for remove button in table */
         background-color: #dc3545; /* Red color for remove */
         color: white;
-        padding: 5px 10px; /* Smaller padding for table button */
+        padding: 5px 10px;
         font-size: 14px;
-        width: auto; /* Auto width for table button */
-        margin: 0; /* Remove margin */
+        width: auto;
+        margin: 0;
     }
     button.btn-remove:hover {
         background-color: #c82333;
@@ -125,7 +132,7 @@ K-CAFE
     button.btn-remove-inventory { /* Style for remove inventory button */
         background-color: #dc3545; /* Red color */
         color: white;
-        padding: 4px 8px; /* Smaller padding */
+        padding: 4px 8px;
         font-size: 12px;
         margin-left: 10px;
         border-radius: 4px;
@@ -143,8 +150,14 @@ K-CAFE
       background: rgba(255, 255, 255, 0.9);
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
       border-radius: 8px;
-      overflow: hidden;
+      overflow-x: auto; /* Add horizontal scroll for table on small screens */
+      display: block; /* Make table a block element for scrolling */
+      white-space: nowrap; /* Prevent text wrapping in table cells */
     }
+     table th, table td {
+        white-space: nowrap; /* Ensure nowrap for table cells */
+     }
+
     th, td {
       padding: 12px;
       text-align: center;
@@ -219,11 +232,8 @@ K-CAFE
         color: #333;
         margin-bottom: 15px;
     }
-    #initialInventoryForm {
-        margin-bottom: 20px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid #ccc;
-    }
+    /* Removed initialInventoryForm styles */
+
      #addCurrentInventoryItemForm {
         margin-bottom: 20px;
         padding-bottom: 15px;
@@ -244,10 +254,16 @@ K-CAFE
         align-items: center;
         padding: 5px 0;
         border-bottom: 1px dashed #eee;
+        flex-wrap: wrap; /* Allow list items to wrap */
     }
-    #currentInventoryList li span {
-        flex-grow: 1;
-    }
+     #currentInventoryList li span {
+         flex-grow: 1;
+         margin-right: 10px; /* Add some space */
+         word-break: break-word; /* Break long words */
+     }
+     #currentInventoryList li button {
+         flex-shrink: 0; /* Prevent button from shrinking */
+     }
   </style>
 </head>
 <body>
@@ -305,24 +321,13 @@ K-CAFE
 <div id="inventorySection">
     <h3>Inventory Tracking</h3>
 
-    <div id="initialInventoryForm">
-        <h4>Set Initial Inventory (Use once for initial setup)</h4>
-        <div id="initialInventoryInputs">
-            </div>
-        <button class="btn btn-add-inventory" onclick="addInitialInventoryField()">Add Product to Initial Inventory</button>
-        <button class="btn btn-primary" onclick="saveInitialInventory()">Save Initial Inventory</button>
-        <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Use this section only for setting up your inventory for the first time or adding multiple items initially. Includes initial quantity and unit cost.</p>
-    </div>
-
      <div id="addCurrentInventoryItemForm">
-        <h4>Add/Update Single Product in Inventory</h4>
-        <div class="inventory-item">
+        <h4>Add/Update Product in Inventory</h4> <div class="inventory-item">
             <input type="text" id="newInventoryProductName" class="inventory-product-name" placeholder="Product Name">
             <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
              <input type="number" id="newInventoryUnitCost" class="unit-cost" placeholder="Unit Cost" min="0" value="0">
         </div>
-        <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Save Product</button>
-         <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one, then click "Save Product".</p>
+        <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one.</p>
     </div>
 
 
@@ -331,6 +336,9 @@ K-CAFE
         <ul id="currentInventoryList">
             </ul>
     </div>
+
+    <button class="btn btn-primary" onclick="saveAllInventoryChanges()">Save All Inventory Changes</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Click this button to save all changes made in the Inventory Tracking section.</p>
+
 </div>
 
 
@@ -432,7 +440,7 @@ K-CAFE
     }
 
 
-  // Add a field to the initial inventory form
+  // Add a field to the initial inventory form (This function is now less relevant but kept for potential future use or if user changes mind)
   function addInitialInventoryField() {
       const initialInventoryInputsDiv = document.getElementById('initialInventoryInputs');
 
@@ -466,65 +474,68 @@ K-CAFE
       initialInventoryInputsDiv.appendChild(itemDiv);
   }
 
-  // Save initial inventory from the form
-  function saveInitialInventory() {
+  // Process data from the initial inventory form (This function is now less relevant but kept)
+  function processInitialInventoryForm() {
       const initialInventoryInputsDiv = document.getElementById('initialInventoryInputs');
       const items = initialInventoryInputsDiv.querySelectorAll('.inventory-item');
 
       items.forEach(item => {
           const productNameInput = item.querySelector('.inventory-product-name');
           const quantityInput = item.querySelector('.inventory-quantity');
-          const unitCostInput = item.querySelector('.unit-cost'); // Get unit cost input
+          const unitCostInput = item.querySelector('.unit-cost');
 
           const productName = productNameInput.value.trim();
           const quantity = parseInt(quantityInput.value);
-          const unitCost = parseFloat(unitCostInput.value); // Get unit cost value
+          const unitCost = parseFloat(unitCostInput.value);
 
           if (productName && !isNaN(quantity) && quantity >= 0 && !isNaN(unitCost) && unitCost >= 0) {
-              currentInventory[productName] = { quantity: quantity, unitCost: unitCost }; // Store quantity and unit cost
-              // Add product to the list of all products if not already there
+              currentInventory[productName] = { quantity: quantity, unitCost: unitCost };
               if (!allProductsAdded.includes(productName)) {
                   allProductsAdded.push(productName);
               }
-          } else {
-               console.log(`Invalid input for ${productName}. Please check name, quantity, and unit cost.`);
+          } else if (productName) { // Log warning if product name is entered but other fields are invalid
+               console.log(`Warning: Invalid input for initial inventory product "${productName}". Please check quantity and unit cost.`);
           }
       });
 
-      saveInventory(); // Save to localStorage
-      displayCurrentInventory(); // Update display
-      updateProductDropdown(); // Update product dropdown
-      // Optionally clear the initial inventory form fields after saving
+      // Clear the initial inventory form fields after processing
       initialInventoryInputsDiv.innerHTML = '';
   }
 
-  // Add or Update a single product in the current inventory
-  function addNewInventoryItem() {
+  // Process data from the single inventory item form (does NOT save to localStorage)
+  function processNewInventoryItemForm() {
       const productNameInput = document.getElementById('newInventoryProductName');
       const quantityInput = document.getElementById('newInventoryQuantity');
-      const unitCostInput = document.getElementById('newInventoryUnitCost'); // Get unit cost input
+      const unitCostInput = document.getElementById('newInventoryUnitCost');
 
       const productName = productNameInput.value.trim();
       const quantity = parseInt(quantityInput.value);
-      const unitCost = parseFloat(unitCostInput.value); // Get unit cost value
-
+      const unitCost = parseFloat(unitCostInput.value);
 
       if (productName && !isNaN(quantity) && quantity >= 0 && !isNaN(unitCost) && unitCost >= 0) {
-          currentInventory[productName] = { quantity: quantity, unitCost: unitCost }; // Add or update the quantity and unit cost
-           // Add product to the list of all products if not already there
+          currentInventory[productName] = { quantity: quantity, unitCost: unitCost };
           if (!allProductsAdded.includes(productName)) {
               allProductsAdded.push(productName);
           }
-          saveInventory(); // Save to localStorage
-          displayCurrentInventory(); // Update display
-          updateProductDropdown(); // Update product dropdown
           // Clear the input fields
           productNameInput.value = '';
           quantityInput.value = '0';
           unitCostInput.value = '0';
-      } else {
-          console.log('Please enter a valid product name, quantity, and unit cost.');
+      } else if (productName) { // Log warning if product name is entered but other fields are invalid
+           console.log(`Warning: Invalid input for single inventory product "${productName}". Please check quantity and unit cost.`);
       }
+  }
+
+  // Save all inventory changes (processes forms and saves to localStorage)
+  function saveAllInventoryChanges() {
+      // processInitialInventoryForm(); // No longer needed as initial form is removed
+      processNewInventoryItemForm(); // Process single inventory item form data
+
+      saveInventory(); // Save the combined inventory to localStorage
+      displayCurrentInventory(); // Update the displayed inventory list
+      updateProductDropdown(); // Update the product dropdown
+
+      console.log('Inventory changes saved!'); // Optional confirmation message
   }
 
   // Remove a product from the inventory (only removes from current inventory, not the dropdown list)
@@ -737,7 +748,16 @@ K-CAFE
   function generateReportPdf() {
       const element = document.getElementById('reportContent'); // Element to convert to PDF
 
-      html2pdf().from(element).save('K-CAFE_Daily_Report.pdf');
+      // Options for html2pdf - adjust as needed for layout
+      const pdfOptions = {
+          margin: 10,
+          filename: 'K-CAFE_Daily_Report.pdf',
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      html2pdf().from(element).set(pdfOptions).save();
 
       // Optionally show instructions after PDF generation
       document.getElementById('shareInstructions').style.display = 'block';
