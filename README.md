@@ -201,8 +201,12 @@ K-CAFE
         background: rgba(255, 255, 255, 0.9);
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        display: none; /* Hidden by default */
+        /* display: none; /* Hidden by default */ /* Keep visible to show instructions */
     }
+     #shareInstructions p {
+         font-size: 16px; /* Slightly smaller font for instructions */
+     }
+
     #inventorySection {
         margin-top: 30px;
         padding: 20px;
@@ -252,7 +256,6 @@ K-CAFE
     <h2>K-CAFE - Daily Purchase & Sale Tracker</h2>
     <div id="reportDate"></div> </div>
 
-
 <form id="entryForm">
   <label for="entryType">Entry Type:</label>
   <select id="entryType">
@@ -273,27 +276,31 @@ K-CAFE
   <button class="btn btn-primary" type="button" onclick="addEntry()">Add Entry</button>
   <button class="btn btn-secondary" type="button" onclick="cancelEntry()">Cancel</button> </form>
 
-<table id="dataTable">
-  <thead>
-    <tr>
-      <th>Entry Type</th>
-      <th>Product</th>
-      <th>Total Price</th>
-      <th>Quantity</th>
-      <th>Unit Price</th>
-      <th>Total</th>
-      <th>Remove</th> </tr>
-  </thead>
-  <tbody>
-    </tbody>
-</table>
+<div id="reportContent">
+    <table id="dataTable">
+      <thead>
+        <tr>
+          <th>Entry Type</th>
+          <th>Product</th>
+          <th>Total Price</th>
+          <th>Quantity</th>
+          <th>Unit Price</th>
+          <th>Total</th>
+          <th>Remove</th>
+        </tr>
+      </thead>
+      <tbody>
+        </tbody>
+    </table>
 
-<div id="dayEndReport">
-  <h3>Day End Summary</h3>
-  <p>Total Purchase: <span id="totalPurchaseDisplay">0.00</span></p>
-  <p>Total Sale: <span id="totalSaleDisplay">0.00</span></p>
-  <p>Profit/Loss: <span id="profitLossDisplay">0.00</span></p>
+    <div id="dayEndReport">
+      <h3>Day End Summary</h3>
+      <p>Total Purchase Cost: <span id="totalPurchaseDisplay">0.00</span></p>
+      <p>Total Sale Revenue: <span id="totalSaleDisplay">0.00</span></p>
+      <p>Profit/Loss: <span id="profitLossDisplay">0.00</span></p>
+    </div>
 </div>
+
 
 <div id="inventorySection">
     <h3>Inventory Tracking</h3>
@@ -314,8 +321,8 @@ K-CAFE
             <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
              <input type="number" id="newInventoryUnitCost" class="unit-cost" placeholder="Unit Cost" min="0" value="0">
         </div>
-        <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button>
-         <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one.</p>
+        <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Save Product</button>
+         <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one, then click "Save Product".</p>
     </div>
 
 
@@ -327,14 +334,10 @@ K-CAFE
 </div>
 
 
-<button class="btn" id="shareBtn" onclick="shareViaWhatsApp()">Share Day End Summary on WhatsApp</button>
-
-<div id="shareInstructions">
-    <h4>رپورٹ شیئر کرنے کے طریقے:</h4>
-    <p>1. **WhatsApp پر سمری بھیجیں:** اوپر والے بٹن پر کلک کریں، یہ WhatsApp کھولے گا جس میں دن کی سمری کا متن پہلے سے لکھا ہوگا۔</p>
-    <p>2. **مکمل رپورٹ PDF میں محفوظ کریں:** اس صفحے پر Right-click (یا موبائل پر مینیو) کر کے 'Print' کا آپشن منتخب کریں۔ Printer کے طور پر 'Save as PDF' منتخب کریں اور فائل کو محفوظ کریں۔ پھر اسے WhatsApp پر دستی طور پر شیئر کریں۔</p>
+<button class="btn" id="shareBtn" onclick="generateReportPdf()">Generate PDF Report</button> <div id="shareInstructions">
+    <h4>رپورٹ شیئر کرنے کا طریقہ:</h4>
+    <p>جب PDF فائل ڈاؤن لوڈ ہو جائے، تو اسے اپنی ڈیوائس کے فائل مینیجر سے تلاش کریں اور WhatsApp پر شیئر کریں۔</p>
 </div>
-
 
 <script>
   // Global variables to store total purchase and sale
@@ -544,8 +547,15 @@ K-CAFE
     const price = parseFloat(document.getElementById('price').value); // This is total price for the entry
     const quantity = parseInt(document.getElementById('quantity').value);
 
+     // Validate product selection
+    if (!product) {
+        console.log('Please select a product.');
+        return;
+    }
+
+
     // Validate inputs
-    if (!entryType || !product || isNaN(price) || price < 0 || isNaN(quantity) || quantity <= 0) {
+    if (!entryType || isNaN(price) || price < 0 || isNaN(quantity) || quantity <= 0) {
       console.log('Please fill in all fields with valid numbers.');
       // In a real application, you would display a message on the page
       return;
@@ -582,9 +592,8 @@ K-CAFE
         saveInventory(); // Save updated inventory
         displayCurrentInventory(); // Update inventory display
     } else {
-        console.log(`Product "${product}" not found in inventory. Please add it to inventory first.`);
-        // Prevent adding entry if product not in inventory (or add it with default cost?)
-        // For now, just log a message and don't add the entry
+        console.log(`Error: Product "${product}" not found in inventory. Please add it to inventory first.`);
+        // Prevent adding entry if product not in inventory
         return; // Stop adding the entry
     }
 
@@ -689,7 +698,10 @@ K-CAFE
   function clearForm() {
     document.getElementById('price').value = '';
     document.getElementById('quantity').value = '';
-    document.getElementById('product').selectedIndex = 0; // Reset product dropdown
+    const productSelect = document.getElementById('product');
+    if (productSelect.options.length > 0) {
+        productSelect.selectedIndex = 0; // Reset to the first option (Select Product)
+    }
     document.getElementById('entryType').selectedIndex = 0; // Reset entry type to Sale
   }
 
@@ -721,36 +733,14 @@ K-CAFE
     }
   }
 
-  // Function to share day end summary via WhatsApp
-  function shareViaWhatsApp() {
-      const reportDate = document.getElementById('reportDate').textContent; // Get the date
-      const totalPurchase = document.getElementById('totalPurchaseDisplay').textContent;
-      const totalSale = document.getElementById('totalSaleDisplay').textContent;
-      const profitLoss = document.getElementById('profitLossDisplay').textContent;
+   // Function to generate PDF report
+  function generateReportPdf() {
+      const element = document.getElementById('reportContent'); // Element to convert to PDF
 
-      // Include current inventory in the message
-      let inventorySummary = "\n*Current Inventory:*";
-      // Sort inventory items alphabetically for the message
-      const sortedProducts = Object.keys(currentInventory).sort();
-      sortedProducts.forEach(productName => {
-          const item = currentInventory[productName];
-          inventorySummary += `\n${productName}: ${item.quantity} (Cost: ${item.unitCost.toFixed(2)} each)`;
-      });
+      html2pdf().from(element).save('K-CAFE_Daily_Report.pdf');
 
-
-      const message = `*K-CAFE Day End Report*\n${reportDate}\n\nTotal Purchase Cost: ${totalPurchase}\nTotal Sale Revenue: ${totalSale}\nProfit/Loss: ${profitLoss}${inventorySummary}`;
-
-      // Replace 03442128439 with the actual number if needed, including country code without '+'
-      const phoneNumber = '923442128439'; // Assuming Pakistan's country code +92
-
-      // Construct the WhatsApp URL
-      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
-
-      // Open WhatsApp in a new tab/window
-      window.open(whatsappUrl, '_blank');
-
-      // Hide instructions after attempting to share
-      document.getElementById('shareInstructions').style.display = 'none';
+      // Optionally show instructions after PDF generation
+      document.getElementById('shareInstructions').style.display = 'block';
   }
 
 
@@ -762,6 +752,8 @@ K-CAFE
   });
 
 </script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 </body>
 </html>
