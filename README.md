@@ -50,7 +50,7 @@ K-CAFE
       margin-bottom: 5px;
       font-weight: bold;
     }
-    select, input[type="number"], input[type="text"] {
+    select, input[type="number"], input[type="text"], input[type="password"] { /* Added password input */
       padding: 10px;
       margin-bottom: 15px;
       font-size: 16px;
@@ -264,6 +264,53 @@ K-CAFE
      #currentInventoryList li button {
          flex-shrink: 0; /* Prevent button from shrinking */
      }
+
+     /* Login Form Styles */
+     #loginForm {
+        background: rgba(255, 255, 255, 0.9);
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        max-width: 400px; /* Limit width of login form */
+        margin: 50px auto; /* Center the login form */
+        text-align: center;
+     }
+     #loginForm input[type="text"], #loginForm input[type="password"] {
+         margin-bottom: 15px;
+     }
+     #loginForm button {
+         width: auto; /* Adjust button width */
+         padding: 10px 20px;
+     }
+     #loginError {
+         color: red;
+         margin-top: 10px;
+         font-weight: bold;
+     }
+     #forgotPasswordLink {
+        display: block; /* Make it a block element */
+        margin-top: 10px;
+        font-size: 0.9em;
+        color: #007BFF;
+        cursor: pointer;
+        text-decoration: underline;
+     }
+     #forgotPasswordLink:hover {
+         color: #0056b3;
+     }
+     #passwordDisplay {
+         margin-top: 15px;
+         font-weight: bold;
+         color: green;
+         display: none; /* Hidden by default */
+     }
+
+
+     /* Hide report content by default */
+     #reportContentWrapper {
+         display: none;
+     }
+
   </style>
 </head>
 <body>
@@ -272,82 +319,97 @@ K-CAFE
     <h2>K-CAFE - Daily Purchase & Sale Tracker</h2>
     <div id="reportDate"></div> </div>
 
-<form id="entryForm">
-  <label for="entryType">Entry Type:</label>
-  <select id="entryType">
-    <option value="Sale">Sale</option>
-    <option value="Purchase">Purchase</option>
-     </select>
+<div id="loginForm">
+    <h3>Login to Access Report</h3>
+    <label for="userId">User ID:</label>
+    <input type="text" id="userId" placeholder="Enter User ID">
 
-  <label for="product">Select Product:</label>
-  <select id="product">
-    </select>
+    <label for="password">Password:</label>
+    <input type="password" id="password" placeholder="Enter Password">
 
-  <label for="price">Total Price:</label>
-  <input type="number" id="price" placeholder="Total Price" min="0">
-
-  <label for="quantity">Quantity:</label>
-  <input type="number" id="quantity" placeholder="Quantity" min="1">
-
-  <button class="btn btn-primary" type="button" onclick="addEntry()">Add Entry</button>
-  <button class="btn btn-secondary" type="button" onclick="cancelEntry()">Cancel</button> </form>
-
-<div id="reportContent">
-    <table id="dataTable">
-      <thead>
-        <tr>
-          <th>Entry Type</th>
-          <th>Product</th>
-          <th>Total Price</th>
-          <th>Quantity</th>
-          <th>Unit Price</th>
-          <th>Total</th>
-          <th>Remove</th>
-        </tr>
-      </thead>
-      <tbody>
-        </tbody>
-    </table>
-
-    <div id="dayEndReport">
-      <h3>Day End Summary</h3>
-      <p>Total Purchase Cost: <span id="totalPurchaseDisplay">0.00</span></p>
-      <p>Total Sale Revenue: <span id="totalSaleDisplay">0.00</span></p>
-      <p>Profit/Loss: <span id="profitLossDisplay">0.00</span></p>
-    </div>
-</div>
+    <button class="btn btn-primary" onclick="login()">Login</button>
+    <div id="loginError" style="display: none;">Invalid User ID or Password.</div>
+    <span id="forgotPasswordLink" onclick="showPassword()">Forgot Password?</span> <div id="passwordDisplay"></div> </div>
 
 
-<div id="inventorySection">
-    <h3>Inventory Tracking</h3>
+<div id="reportContentWrapper">
 
-     <div id="addCurrentInventoryItemForm">
-        <h4>Add/Update Product in Inventory</h4> <div class="inventory-item">
-            <input type="text" id="newInventoryProductName" class="inventory-product-name" placeholder="Product Name">
-            <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
-             <input type="number" id="newInventoryUnitCost" class="unit-cost" placeholder="Unit Cost" min="0" value="0">
+    <form id="entryForm">
+      <label for="entryType">Entry Type:</label>
+      <select id="entryType">
+        <option value="Sale">Sale</option>
+        <option value="Purchase">Purchase</option>
+         </select>
+
+      <label for="product">Select Product:</label>
+      <select id="product">
+        </select>
+
+      <label for="price">Total Price:</label>
+      <input type="number" id="price" placeholder="Total Price" min="0">
+
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity" placeholder="Quantity" min="1">
+
+      <button class="btn btn-primary" type="button" onclick="addEntry()">Add Entry</button>
+      <button class="btn btn-secondary" type="button" onclick="cancelEntry()">Cancel</button> </form>
+
+    <div id="reportContent">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>Entry Type</th>
+              <th>Product</th>
+              <th>Total Price</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+              <th>Remove</th>
+            </tr>
+          </thead>
+          <tbody>
+            </tbody>
+        </table>
+
+        <div id="dayEndReport">
+          <h3>Day End Summary</h3>
+          <p>Total Purchase Cost: <span id="totalPurchaseDisplay">0.00</span></p>
+          <p>Total Sale Revenue: <span id="totalSaleDisplay">0.00</span></p>
+          <p>Profit/Loss: <span id="profitLossDisplay">0.00</span></p>
         </div>
-        <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one.</p>
     </div>
 
 
-    <div id="currentInventory">
-        <h4>Current Inventory Balance</h4>
-        <ul id="currentInventoryList">
-            </ul>
+    <div id="inventorySection">
+        <h3>Inventory Tracking</h3>
+
+         <div id="addCurrentInventoryItemForm">
+            <h4>Add/Update Product in Inventory</h4> <div class="inventory-item">
+                <input type="text" id="newInventoryProductName" class="inventory-product-name" placeholder="Product Name">
+                <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
+                 <input type="number" id="newInventoryUnitCost" class="unit-cost" placeholder="Unit Cost" min="0" value="0">
+            </div>
+            <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one.</p>
+        </div>
+
+
+        <div id="currentInventory">
+            <h4>Current Inventory Balance</h4>
+            <ul id="currentInventoryList">
+                </ul>
+        </div>
+
+        <button class="btn btn-primary" onclick="saveAllInventoryChanges()">Save All Inventory Changes</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Click this button to save all changes made in the Inventory Tracking section.</p>
+
     </div>
 
-    <button class="btn btn-primary" onclick="saveAllInventoryChanges()">Save All Inventory Changes</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Click this button to save all changes made in the Inventory Tracking section.</p>
 
-</div>
+    <button class="btn" id="shareBtn" onclick="generateReportPdf()">Generate PDF Report</button> <div id="shareInstructions">
+        <h4>رپورٹ شیئر کرنے کا طریقہ:</h4>
+        <p>جب PDF فائل ڈاؤن لوڈ ہو جائے، تو اسے اپنی ڈیوائس کے فائل مینیجر سے تلاش کریں اور WhatsApp پر شیئر کریں۔</p>
+    </div>
 
-
-<button class="btn" id="shareBtn" onclick="generateReportPdf()">Generate PDF Report</button> <div id="shareInstructions">
-    <h4>رپورٹ شیئر کرنے کا طریقہ:</h4>
-    <p>جب PDF فائل ڈاؤن لوڈ ہو جائے، تو اسے اپنی ڈیوائس کے فائل مینیجر سے تلاش کریں اور WhatsApp پر شیئر کریں۔</p>
-</div>
-
-<script>
+</div> <script>
   // Global variables to store total purchase and sale
   let grandTotalPurchase = 0; // Total cost of goods purchased
   let grandTotalSale = 0; // Total revenue from sales
@@ -359,6 +421,42 @@ K-CAFE
 
   // Array to store all product names ever added to inventory (for dropdown)
   let allProductsAdded = [];
+
+  // --- Basic Authentication ---
+  const CORRECT_USER_ID = "admin";
+  const CORRECT_PASSWORD = "admin";
+  // WARNING: This is client-side and not secure for sensitive data.
+
+  function login() {
+      const userIdInput = document.getElementById('userId').value;
+      const passwordInput = document.getElementById('password').value;
+      const loginErrorDiv = document.getElementById('loginError');
+      const loginFormDiv = document.getElementById('loginForm');
+      const reportContentWrapperDiv = document.getElementById('reportContentWrapper');
+
+      if (userIdInput === CORRECT_USER_ID && passwordInput === CORRECT_PASSWORD) {
+          loginFormDiv.style.display = 'none'; // Hide login form
+          reportContentWrapperDiv.style.display = 'block'; // Show report content
+          loginErrorDiv.style.display = 'none'; // Hide error message
+
+          // Initialize report data after successful login
+          displayCurrentDate();
+          loadInventory(); // Load inventory and all products on page load
+          updateDayEndReportDisplay();
+
+      } else {
+          loginErrorDiv.style.display = 'block'; // Show error message
+          console.log("Login failed: Invalid User ID or Password.");
+      }
+  }
+
+  // Function to show the password
+  function showPassword() {
+      const passwordDisplayDiv = document.getElementById('passwordDisplay');
+      passwordDisplayDiv.textContent = `Your Password: ${CORRECT_PASSWORD}`;
+      passwordDisplayDiv.style.display = 'block';
+  }
+
 
   // Function to display the current date
   function displayCurrentDate() {
@@ -765,11 +863,12 @@ K-CAFE
 
 
   // Initialize the day end report display, date, and load inventory on page load
-  document.addEventListener('DOMContentLoaded', () => {
-      displayCurrentDate();
-      loadInventory(); // Load inventory and all products on page load
-      updateDayEndReportDisplay();
-  });
+  // Initial load happens AFTER successful login
+  // document.addEventListener('DOMContentLoaded', () => {
+  //     displayCurrentDate();
+  //     loadInventory(); // Load inventory and all products on page load
+  //     updateDayEndReportDisplay();
+  // });
 
 </script>
 
