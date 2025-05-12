@@ -302,7 +302,7 @@ K-CAFE
          margin-top: 15px;
          font-weight: bold;
          color: green;
-         display: none; /* Hidden by default */
+         /* display: none; /* Hidden by default */ /* Keep visible to show the link */
      }
 
 
@@ -329,7 +329,7 @@ K-CAFE
 
     <button class="btn btn-primary" onclick="login()">Login</button>
     <div id="loginError" style="display: none;">Invalid User ID or Password.</div>
-    <span id="forgotPasswordLink" onclick="showPassword()">Forgot Password?</span> <div id="passwordDisplay"></div> </div>
+    <span id="forgotPasswordLink" onclick="sendPasswordViaWhatsApp()">Forgot Password?</span> <div id="passwordDisplay" style="display: none;"></div> </div>
 
 
 <div id="reportContentWrapper">
@@ -425,6 +425,8 @@ K-CAFE
   // --- Basic Authentication ---
   const CORRECT_USER_ID = "admin";
   const CORRECT_PASSWORD = "admin";
+  const WHATSAPP_PHONE_NUMBER = "923442128439"; // User's WhatsApp number
+
   // WARNING: This is client-side and not secure for sensitive data.
 
   function login() {
@@ -450,11 +452,22 @@ K-CAFE
       }
   }
 
-  // Function to show the password
-  function showPassword() {
+  // Function to send password via WhatsApp
+  function sendPasswordViaWhatsApp() {
+      const message = `Your K-CAFE Daily Report Password is: ${CORRECT_PASSWORD}`;
+      const whatsappUrl = `https://wa.me/${WHATSAPP_PHONE_NUMBER}?text=${encodeURIComponent(message)}`;
+
+      // Open WhatsApp in a new tab/window
+      window.open(whatsappUrl, '_blank');
+
+      // Optionally show a message on the page indicating WhatsApp is opening
       const passwordDisplayDiv = document.getElementById('passwordDisplay');
-      passwordDisplayDiv.textContent = `Your Password: ${CORRECT_PASSWORD}`;
+      passwordDisplayDiv.textContent = `Opening WhatsApp to send your password...`;
       passwordDisplayDiv.style.display = 'block';
+       // Hide the message after a few seconds
+       setTimeout(() => {
+           passwordDisplayDiv.style.display = 'none';
+       }, 5000); // Hide after 5 seconds
   }
 
 
@@ -866,13 +879,4 @@ K-CAFE
   // Initial load happens AFTER successful login
   // document.addEventListener('DOMContentLoaded', () => {
   //     displayCurrentDate();
-  //     loadInventory(); // Load inventory and all products on page load
-  //     updateDayEndReportDisplay();
-  // });
-
-</script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-
-</body>
-</html>
+ 
