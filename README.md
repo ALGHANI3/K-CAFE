@@ -494,15 +494,19 @@
       const savedInventory = localStorage.getItem('kcafeInventory');
       if (savedInventory) {
           currentInventory = JSON.parse(savedInventory);
+           console.log("Loaded currentInventory from localStorage:", currentInventory); // Log loaded inventory
       } else {
           currentInventory = {};
+           console.log("No inventory found in localStorage. Initializing empty currentInventory.");
       }
 
       const savedProducts = localStorage.getItem('kcafeAllProducts');
       if (savedProducts) {
           allProductsAdded = JSON.parse(savedProducts);
+           console.log("Loaded allProductsAdded from localStorage:", allProductsAdded); // Log loaded products
       } else {
           allProductsAdded = [];
+           console.log("No product list found in localStorage. Initializing empty allProductsAdded.");
       }
 
       displayCurrentInventory();
@@ -513,6 +517,7 @@
   function saveInventory() {
       localStorage.setItem('kcafeInventory', JSON.stringify(currentInventory));
       localStorage.setItem('kcafeAllProducts', JSON.stringify(allProductsAdded));
+       console.log("Inventory and product list saved to localStorage."); // Log save action
   }
 
   // Display current inventory
@@ -559,7 +564,7 @@
         const sortedAllProducts = allProductsAdded.sort();
 
         // Log the array content to console for debugging
-        console.log("allProductsAdded array content:", allProductsAdded);
+        console.log("allProductsAdded array content for dropdown:", sortedAllProducts);
 
 
         sortedAllProducts.forEach(productName => {
@@ -647,6 +652,9 @@
           currentInventory[productName] = { quantity: quantity, unitCost: unitCost };
           if (!allProductsAdded.includes(productName)) {
               allProductsAdded.push(productName); // Add product name to allProductsAdded array
+              console.log(`Added "${productName}" to allProductsAdded.`); // Log when product is added to array
+          } else {
+               console.log(`Product "${productName}" already in allProductsAdded.`); // Log if product is already in array
           }
           // Clear the input fields
           productNameInput.value = '';
@@ -659,6 +667,7 @@
 
   // Save all inventory changes (processes forms and saves to localStorage)
   function saveAllInventoryChanges() {
+      console.log("Save All Inventory Changes button clicked."); // Log button click
       // processInitialInventoryForm(); // No longer needed as initial form is removed
       processNewInventoryItemForm(); // Process single inventory item form data
 
@@ -878,6 +887,9 @@
    // Function to generate PDF report
   function generateReportPdf() {
       const element = document.getElementById('reportContent'); // Element to convert to PDF
+      const tableBody = document.querySelector('#dataTable tbody');
+      const rowCount = tableBody.rows.length;
+      console.log(`Number of rows in table before PDF generation: ${rowCount}`); // Log row count
 
       // Options for html2pdf - adjust as needed for layout
       const pdfOptions = {
@@ -893,7 +905,7 @@
           html2pdf().from(element).set(pdfOptions).save();
            // Optionally show instructions after PDF generation
           document.getElementById('shareInstructions').style.display = 'block';
-      }, 100); // Small delay of 100ms
+      }, 500); // Increased delay to 500ms
 
 
   }
