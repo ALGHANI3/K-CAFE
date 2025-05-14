@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!K-CAFE>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -264,6 +264,13 @@
      #currentInventoryList li button {
          flex-shrink: 0; /* Prevent button from shrinking */
      }
+    #emptyInventoryMessage { /* Style for empty inventory message */
+        text-align: center;
+        color: #777;
+        font-style: italic;
+        margin-top: 10px;
+    }
+
 
      /* Login Form Styles */
      #loginForm {
@@ -396,7 +403,8 @@
         <div id="currentInventory">
             <h4>Current Inventory Balance</h4>
             <ul id="currentInventoryList">
-                </ul>
+                 <li id="emptyInventoryMessage">No inventory items added yet. Use the section above to add products.</li>
+            </ul>
         </div>
 
         <button class="btn btn-primary" onclick="saveAllInventoryChanges()">Save All Inventory Changes</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Click this button to save all changes made in the Inventory Tracking section.</p>
@@ -512,18 +520,26 @@
       const inventoryList = document.getElementById('currentInventoryList');
       inventoryList.innerHTML = ''; // Clear previous display
 
-      // Sort inventory items alphabetically by product name for consistent display
       const sortedProducts = Object.keys(currentInventory).sort();
 
-      sortedProducts.forEach(productName => {
-          const item = currentInventory[productName];
-          const listItem = document.createElement('li');
-          listItem.innerHTML = `
-              <span>${productName}: ${item.quantity} (Cost: ${item.unitCost.toFixed(2)} each)</span>
-              <button class="btn-remove-inventory" onclick="removeInventoryItem('${productName}')">Remove</button>
-          `;
-          inventoryList.appendChild(listItem);
-      });
+      if (sortedProducts.length === 0) {
+          // Display message if inventory is empty
+          const emptyMessageItem = document.createElement('li');
+          emptyMessageItem.id = 'emptyInventoryMessage';
+          emptyMessageItem.textContent = 'No inventory items added yet. Use the section above to add products.';
+          inventoryList.appendChild(emptyMessageItem);
+      } else {
+          // Display inventory items if not empty
+          sortedProducts.forEach(productName => {
+              const item = currentInventory[productName];
+              const listItem = document.createElement('li');
+              listItem.innerHTML = `
+                  <span>${productName}: ${item.quantity} (Cost: ${item.unitCost.toFixed(2)} each)</span>
+                  <button class="btn-remove-inventory" onclick="removeInventoryItem('${productName}')">Remove</button>
+              `;
+              inventoryList.appendChild(listItem);
+          });
+      }
   }
 
     // Update the product select dropdown based on all products ever added
@@ -868,10 +884,14 @@
           jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
       };
 
-      html2pdf().from(element).set(pdfOptions).save();
+      // Add a brief delay to ensure all content is rendered before PDF generation
+      setTimeout(() => {
+          html2pdf().from(element).set(pdfOptions).save();
+           // Optionally show instructions after PDF generation
+          document.getElementById('shareInstructions').style.display = 'block';
+      }, 100); // Small delay of 100ms
 
-      // Optionally show instructions after PDF generation
-      document.getElementById('shareInstructions').style.display = 'block';
+
   }
 
 
