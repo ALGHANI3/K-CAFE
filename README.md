@@ -1,4 +1,4 @@
-K-CAFE
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -879,4 +879,13 @@ K-CAFE
   // Initial load happens AFTER successful login
   // document.addEventListener('DOMContentLoaded', () => {
   //     displayCurrentDate();
- 
+  //     loadInventory(); // Load inventory and all products on page load
+  //     updateDayEndReportDisplay();
+  // });
+
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+</body>
+</html>
