@@ -1,4 +1,4 @@
-<!K-CAFE>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -558,6 +558,10 @@
         // Sort all products alphabetically
         const sortedAllProducts = allProductsAdded.sort();
 
+        // Log the array content to console for debugging
+        console.log("allProductsAdded array content:", allProductsAdded);
+
+
         sortedAllProducts.forEach(productName => {
             const option = document.createElement('option');
             option.value = productName;
@@ -642,7 +646,7 @@
       if (productName && !isNaN(quantity) && quantity >= 0 && !isNaN(unitCost) && unitCost >= 0) {
           currentInventory[productName] = { quantity: quantity, unitCost: unitCost };
           if (!allProductsAdded.includes(productName)) {
-              allProductsAdded.push(productName);
+              allProductsAdded.push(productName); // Add product name to allProductsAdded array
           }
           // Clear the input fields
           productNameInput.value = '';
