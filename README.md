@@ -453,7 +453,8 @@
   let currentInventory = {};
 
   // Array to store all product names ever added to inventory (for dropdown)
-  let allProductsAdded = [];
+  // Added "Movie" here
+  let allProductsAdded = ["Water Bottle 1.5L", "Water Bottle 500ml", "Cold Drinks", "Tea", "Fries", "Chips", "Other", "Can", "Movie"];
 
   // --- Basic Authentication ---
   const CORRECT_USER_ID = "admin";
