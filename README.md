@@ -341,81 +341,91 @@
 
 <div id="reportContentWrapper">
 
-    <form id="entryForm">
-      <label for="entryType">Entry Type:</label>
-      <select id="entryType">
-        <option value="Sale">Sale</option>
-        <option value="Purchase">Purchase</option>
-         </select>
+    <div id="pdfContent">
+        <form id="entryForm">
+          <label for="entryType">Entry Type:</label>
+          <select id="entryType">
+            <option value="Sale">Sale</option>
+            <option value="Purchase">Purchase</option>
+             </select>
 
-      <label for="product">Select Product:</label>
-      <select id="product">
-        </select>
+          <label for="product">Select Product:</label>
+          <select id="product">
+            </select>
 
-      <label for="price">Total Price:</label>
-      <input type="number" id="price" placeholder="Total Price" min="0">
+          <label for="price">Total Price:</label>
+          <input type="number" id="price" placeholder="Total Price" min="0">
 
-      <label for="quantity">Quantity:</label>
-      <input type="number" id="quantity" placeholder="Quantity" min="1">
+          <label for="quantity">Quantity:</label>
+          <input type="number" id="quantity" placeholder="Quantity" min="1">
 
-      <button class="btn btn-primary" type="button" onclick="addEntry()">Add Entry</button>
-      <button class="btn btn-secondary" type="button" onclick="cancelEntry()">Cancel</button> </form>
+          <button class="btn btn-primary" type="button" onclick="addEntry()">Add Entry</button>
+          <button class="btn btn-secondary" type="button" onclick="cancelEntry()">Cancel</button> </form>
 
-    <div id="reportContent">
-        <table id="dataTable">
-          <thead>
-            <tr>
-              <th>Entry Type</th>
-              <th>Product</th>
-              <th>Total Price</th>
-              <th>Quantity</th>
-              <th>Unit Price</th>
-              <th>Total</th>
-              <th>Remove</th>
-            </tr>
-          </thead>
-          <tbody>
-            </tbody>
-        </table>
+        <div id="reportContent">
+            <table id="dataTable">
+              <thead>
+                <tr>
+                  <th>Entry Type</th>
+                  <th>Product</th>
+                  <th>Total Price</th>
+                  <th>Quantity</th>
+                  <th>Unit Price</th>
+                  <th>Total</th>
+                  <th>Remove</th>
+                </tr>
+              </thead>
+              <tbody>
+                </tbody>
+            </table>
 
-        <div id="dayEndReport">
-          <h3>Day End Summary</h3>
-          <p>Total Purchase Cost: <span id="totalPurchaseDisplay">0.00</span></p>
-          <p>Total Sale Revenue: <span id="totalSaleDisplay">0.00</span></p>
-          <p>Profit/Loss: <span id="profitLossDisplay">0.00</span></p>
-        </div>
-    </div>
-
-
-    <div id="inventorySection">
-        <h3>Inventory Tracking</h3>
-
-         <div id="addCurrentInventoryItemForm">
-            <h4>Add/Update Product in Inventory</h4> <div class="inventory-item">
-                <input type="text" id="newInventoryProductName" class="inventory-product-name" placeholder="Product Name">
-                <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
-                 <input type="number" id="newInventoryUnitCost" class="unit-cost" placeholder="Unit Cost" min="0" value="0">
+            <div id="dayEndReport">
+              <h3>Day End Summary</h3>
+              <p>Total Purchase Cost: <span id="totalPurchaseDisplay">0.00</span></p>
+              <p>Total Sale Revenue: <span id="totalSaleDisplay">0.00</span></p>
+              <p>Profit/Loss: <span id="profitLossDisplay">0.00</span></p>
             </div>
-            <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one.</p>
         </div>
 
 
-        <div id="currentInventory">
-            <h4>Current Inventory Balance</h4>
-            <ul id="currentInventoryList">
-                 <li id="emptyInventoryMessage">No inventory items added yet. Use the section above to add products.</li>
-            </ul>
+        <div id="inventorySection">
+            <h3>Inventory Tracking</h3>
+
+             <div id="addCurrentInventoryItemForm">
+                <h4>Add/Update Product in Inventory</h4> <div class="inventory-item">
+                    <input type="text" id="newInventoryProductName" class="inventory-product-name" placeholder="Product Name">
+                    <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
+                     <input type="number" id="newInventoryUnitCost" class="unit-cost" placeholder="Unit Cost" min="0" value="0">
+                </div>
+                <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one.</p>
+            </div>
+
+
+            <div id="currentInventory">
+                <h4>Current Inventory Balance</h4>
+                <ul id="currentInventoryList">
+                     <li id="emptyInventoryMessage">No inventory items added yet. Use the section above to add products.</li>
+                </ul>
+            </div>
+
+            <button class="btn btn-primary" onclick="saveAllInventoryChanges()">Save All Inventory Changes</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Click this button to save all changes made in the Inventory Tracking section.</p>
+
         </div>
-
-        <button class="btn btn-primary" onclick="saveAllInventoryChanges()">Save All Inventory Changes</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Click this button to save all changes made in the Inventory Tracking section.</p>
-
     </div>
 
 
-    <button class="btn" id="shareBtn" onclick="generateReportPdf()">Generate PDF Report</button> <div id="shareInstructions">
-        <h4>رپورٹ شیئر کرنے کا طریقہ:</h4>
-        <p>جب PDF فائل ڈاؤن لوڈ ہو جائے، تو اسے اپنی ڈیوائس کے فائل مینیجر سے تلاش کریں اور WhatsApp پر شیئر کریں۔</p>
+    <div style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.9); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <h3 style="text-align: center; color: #333; margin-bottom: 15px;">Generate & Share Report</h3>
+        <p style="font-size: 0.9em; color: #777; margin-bottom: 15px;">
+            یہ بٹن موجودہ سیشن کی خرید و فروخت کی اینٹریز اور سمری کا PDF تیار کرے گا۔ براہ کرم یقینی بنائیں کہ آپ نے تمام اینٹریز شامل کر لی ہیں۔
+        </p>
+        <button class="btn" id="shareBtn" onclick="generateReportPdf()">Generate PDF Report</button>
+        <div id="shareInstructions" style="margin-top: 15px;">
+            <h4>رپورٹ شیئر کرنے کا طریقہ:</h4>
+            <p>جب PDF فائل ڈاؤن لوڈ ہو جائے، تو اسے اپنی ڈیوائس کے فائل مینیجر سے تلاش کریں اور WhatsApp یا کسی اور ایپ پر شیئر کریں۔</p>
+        </div>
     </div>
+
 
 </div> <script>
   // Global variables to store total purchase and sale
@@ -493,8 +503,13 @@
   function loadInventory() {
       const savedInventory = localStorage.getItem('kcafeInventory');
       if (savedInventory) {
-          currentInventory = JSON.parse(savedInventory);
-           console.log("Loaded currentInventory from localStorage:", currentInventory); // Log loaded inventory
+          try {
+              currentInventory = JSON.parse(savedInventory);
+               console.log("Loaded currentInventory from localStorage:", currentInventory); // Log loaded inventory
+          } catch (e) {
+              console.error("Error parsing currentInventory from localStorage:", e);
+              currentInventory = {}; // Initialize as empty if parsing fails
+          }
       } else {
           currentInventory = {};
            console.log("No inventory found in localStorage. Initializing empty currentInventory.");
@@ -502,8 +517,13 @@
 
       const savedProducts = localStorage.getItem('kcafeAllProducts');
       if (savedProducts) {
-          allProductsAdded = JSON.parse(savedProducts);
-           console.log("Loaded allProductsAdded from localStorage:", allProductsAdded); // Log loaded products
+          try {
+              allProductsAdded = JSON.parse(savedProducts);
+               console.log("Loaded allProductsAdded from localStorage:", allProductsAdded); // Log loaded products
+          } catch (e) {
+               console.error("Error parsing allProductsAdded from localStorage:", e);
+               allProductsAdded = []; // Initialize as empty if parsing fails
+          }
       } else {
           allProductsAdded = [];
            console.log("No product list found in localStorage. Initializing empty allProductsAdded.");
@@ -515,9 +535,14 @@
 
   // Save inventory and all products to localStorage
   function saveInventory() {
-      localStorage.setItem('kcafeInventory', JSON.stringify(currentInventory));
-      localStorage.setItem('kcafeAllProducts', JSON.stringify(allProductsAdded));
-       console.log("Inventory and product list saved to localStorage."); // Log save action
+      try {
+          localStorage.setItem('kcafeInventory', JSON.stringify(currentInventory));
+          localStorage.setItem('kcafeAllProducts', JSON.stringify(allProductsAdded));
+           console.log("Inventory and product list saved to localStorage."); // Log save action
+      } catch (e) {
+           console.error("Error saving to localStorage:", e);
+            // Optionally display a message to the user that saving failed
+      }
   }
 
   // Display current inventory
@@ -886,10 +911,12 @@
 
    // Function to generate PDF report
   function generateReportPdf() {
-      const element = document.getElementById('reportContent'); // Element to convert to PDF
+      // Target the new container div that includes report content and inventory
+      const element = document.getElementById('pdfContent');
       const tableBody = document.querySelector('#dataTable tbody');
       const rowCount = tableBody.rows.length;
-      console.log(`Number of rows in table before PDF generation: ${rowCount}`); // Log row count
+      console.log(`Attempting to generate PDF from #pdfContent. Rows in table: ${rowCount}`); // Log row count
+
 
       // Options for html2pdf - adjust as needed for layout
       const pdfOptions = {
@@ -902,10 +929,16 @@
 
       // Add a brief delay to ensure all content is rendered before PDF generation
       setTimeout(() => {
-          html2pdf().from(element).set(pdfOptions).save();
-           // Optionally show instructions after PDF generation
-          document.getElementById('shareInstructions').style.display = 'block';
-      }, 500); // Increased delay to 500ms
+          console.log("Generating PDF after delay..."); // Log before generation
+          html2pdf().from(element).set(pdfOptions).save().then(() => {
+               console.log("PDF generation complete."); // Log after generation
+               // Optionally show instructions after PDF generation
+               document.getElementById('shareInstructions').style.display = 'block';
+          }).catch(error => {
+              console.error("Error generating PDF:", error); // Log any errors
+              // Optionally display an error message to the user
+          });
+      }, 1000); // Increased delay to 1000ms (1 second)
 
 
   }
