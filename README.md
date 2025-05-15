@@ -547,18 +547,26 @@
 
   // Display current inventory
   function displayCurrentInventory() {
+      console.log("displayCurrentInventory function called."); // Log function call
       const inventoryList = document.getElementById('currentInventoryList');
+      if (!inventoryList) {
+          console.error("Error: #currentInventoryList element not found!"); // Log if element is missing
+          return; // Exit if element is not found
+      }
       inventoryList.innerHTML = ''; // Clear previous display
+      console.log("currentInventory object:", currentInventory); // Log current inventory content
 
       const sortedProducts = Object.keys(currentInventory).sort();
 
       if (sortedProducts.length === 0) {
+          console.log("currentInventory is empty. Displaying empty message."); // Log if empty
           // Display message if inventory is empty
           const emptyMessageItem = document.createElement('li');
           emptyMessageItem.id = 'emptyInventoryMessage';
           emptyMessageItem.textContent = 'No inventory items added yet. Use the section above to add products.';
           inventoryList.appendChild(emptyMessageItem);
       } else {
+          console.log(`currentInventory has ${sortedProducts.length} items. Displaying list.`); // Log if not empty
           // Display inventory items if not empty
           sortedProducts.forEach(productName => {
               const item = currentInventory[productName];
@@ -568,6 +576,7 @@
                   <button class="btn-remove-inventory" onclick="removeInventoryItem('${productName}')">Remove</button>
               `;
               inventoryList.appendChild(listItem);
+               console.log(`Added list item for product: ${productName}`); // Log each item added
           });
       }
   }
@@ -575,6 +584,10 @@
     // Update the product select dropdown based on all products ever added
     function updateProductDropdown() {
         const productSelect = document.getElementById('product');
+        if (!productSelect) {
+             console.error("Error: #product select element not found!"); // Log if element is missing
+             return; // Exit if element is not found
+        }
         productSelect.innerHTML = ''; // Clear existing options
 
         // Add a default disabled option
@@ -598,6 +611,7 @@
             option.textContent = productName;
             productSelect.appendChild(option);
         });
+         console.log(`Product dropdown updated with ${sortedAllProducts.length} options.`); // Log update count
     }
 
 
