@@ -226,6 +226,10 @@
         background: rgba(255, 255, 255, 0.9);
         border-radius: 8px;
         box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        /* Ensure inventory section is displayed */
+        display: block;
+        width: 100%; /* Ensure it takes full width */
+        box-sizing: border-box; /* Include padding in width */
     }
     #inventorySection h3 {
         text-align: center;
@@ -241,10 +245,18 @@
     }
     #currentInventory {
         margin-top: 15px;
+         /* Ensure current inventory display is block */
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
     }
     #currentInventoryList {
         list-style: none;
         padding: 0;
+         /* Ensure list is displayed */
+        display: block;
+        width: 100%;
+        box-sizing: border-box;
     }
     #currentInventoryList li {
         margin-bottom: 8px;
@@ -269,6 +281,14 @@
         color: #777;
         font-style: italic;
         margin-top: 10px;
+    }
+
+    #saveConfirmation { /* Style for save confirmation message */
+        text-align: center;
+        color: green;
+        font-weight: bold;
+        margin-top: 10px;
+        min-height: 1em; /* Reserve space to prevent layout shift */
     }
 
 
@@ -341,90 +361,85 @@
 
 <div id="reportContentWrapper">
 
-    <div id="pdfContent">
-        <form id="entryForm">
-          <label for="entryType">Entry Type:</label>
-          <select id="entryType">
-            <option value="Sale">Sale</option>
-            <option value="Purchase">Purchase</option>
-             </select>
+    <form id="entryForm">
+      <label for="entryType">Entry Type:</label>
+      <select id="entryType">
+        <option value="Sale">Sale</option>
+        <option value="Purchase">Purchase</option>
+         </select>
 
-          <label for="product">Select Product:</label>
-          <select id="product">
-            </select>
+      <label for="product">Select Product:</label>
+      <select id="product">
+        </select>
 
-          <label for="price">Total Price:</label>
-          <input type="number" id="price" placeholder="Total Price" min="0">
+      <label for="price">Total Price:</label>
+      <input type="number" id="price" placeholder="Total Price" min="0">
 
-          <label for="quantity">Quantity:</label>
-          <input type="number" id="quantity" placeholder="Quantity" min="1">
+      <label for="quantity">Quantity:</label>
+      <input type="number" id="quantity" placeholder="Quantity" min="1">
 
-          <button class="btn btn-primary" type="button" onclick="addEntry()">Add Entry</button>
-          <button class="btn btn-secondary" type="button" onclick="cancelEntry()">Cancel</button> </form>
+      <button class="btn btn-primary" type="button" onclick="addEntry()">Add Entry</button>
+      <button class="btn btn-secondary" type="button" onclick="cancelEntry()">Cancel</button> </form>
 
-        <div id="reportContent">
-            <table id="dataTable">
-              <thead>
-                <tr>
-                  <th>Entry Type</th>
-                  <th>Product</th>
-                  <th>Total Price</th>
-                  <th>Quantity</th>
-                  <th>Unit Price</th>
-                  <th>Total</th>
-                  <th>Remove</th>
-                </tr>
-              </thead>
-              <tbody>
-                </tbody>
-            </table>
+    <div id="reportContent">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th>Entry Type</th>
+              <th>Product</th>
+              <th>Total Price</th>
+              <th>Quantity</th>
+              <th>Unit Price</th>
+              <th>Total</th>
+              <th>Remove</th>
+            </tr>
+          </thead>
+          <tbody>
+            </tbody>
+        </table>
 
-            <div id="dayEndReport">
-              <h3>Day End Summary</h3>
-              <p>Total Purchase Cost: <span id="totalPurchaseDisplay">0.00</span></p>
-              <p>Total Sale Revenue: <span id="totalSaleDisplay">0.00</span></p>
-              <p>Profit/Loss: <span id="profitLossDisplay">0.00</span></p>
+        <div id="dayEndReport">
+          <h3>Day End Summary</h3>
+          <p>Total Purchase Cost: <span id="totalPurchaseDisplay">0.00</span></p>
+          <p>Total Sale Revenue: <span id="totalSaleDisplay">0.00</span></p>
+          <p>Profit/Loss: <span id="profitLossDisplay">0.00</span></p>
+        </div>
+    </div>
+
+
+    <div id="inventorySection">
+        <h3>Inventory Tracking</h3>
+
+         <div id="addCurrentInventoryItemForm">
+            <h4>Add/Update Product in Inventory</h4> <div class="inventory-item">
+                <input type="text" id="newInventoryProductName" class="inventory-product-name" placeholder="Product Name">
+                <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
+                 <input type="number" id="newInventoryUnitCost" class="unit-cost" placeholder="Unit Cost" min="0" value="0">
             </div>
+            <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one.</p>
         </div>
 
 
-        <div id="inventorySection">
-            <h3>Inventory Tracking</h3>
-
-             <div id="addCurrentInventoryItemForm">
-                <h4>Add/Update Product in Inventory</h4> <div class="inventory-item">
-                    <input type="text" id="newInventoryProductName" class="inventory-product-name" placeholder="Product Name">
-                    <input type="number" id="newInventoryQuantity" class="inventory-quantity" placeholder="Quantity" min="0" value="0">
-                     <input type="number" id="newInventoryUnitCost" class="unit-cost" placeholder="Unit Cost" min="0" value="0">
-                </div>
-                <button class="btn btn-add-inventory" onclick="addNewInventoryItem()">Add/Update Product</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Enter name, quantity, and unit cost to add a new product or update an existing one.</p>
-            </div>
-
-
-            <div id="currentInventory">
-                <h4>Current Inventory Balance</h4>
-                <ul id="currentInventoryList">
-                     <li id="emptyInventoryMessage">No inventory items added yet. Use the section above to add products.</li>
-                </ul>
-            </div>
-
-            <button class="btn btn-primary" onclick="saveAllInventoryChanges()">Save All Inventory Changes</button> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Click this button to save all changes made in the Inventory Tracking section.</p>
-
+        <div id="currentInventory">
+            <h4>Current Inventory Balance</h4>
+            <ul id="currentInventoryList">
+                 <li id="emptyInventoryMessage">No inventory items added yet. Use the section above to add products.</li>
+            </ul>
         </div>
+
+        <button class="btn btn-primary" onclick="saveAllInventoryChanges()">Save All Inventory Changes</button>
+         <div id="saveConfirmation"></div> <p style="font-size: 0.9em; color: #777; margin-top: 10px;">Click this button to save all changes made in the Inventory Tracking section.</p>
+
     </div>
 
 
     <div style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.9); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <h3 style="text-align: center; color: #333; margin-bottom: 15px;">Generate & Share Report</h3>
+        <h3 style="text-align: center; color: #333; margin-bottom: 15px;">Share Day End Summary</h3>
         <p style="font-size: 0.9em; color: #777; margin-bottom: 15px;">
-            یہ بٹن موجودہ سیشن کی خرید و فروخت کی اینٹریز اور سمری کا PDF تیار کرے گا۔ براہ کرم یقینی بنائیں کہ آپ نے تمام اینٹریز شامل کر لی ہیں۔
+            یہ بٹن موجودہ سیشن کی دن کے اختتام کی سمری (خرید، فروخت، نفع/نقصان) WhatsApp پر شیئر کرے گا۔
         </p>
-        <button class="btn" id="shareBtn" onclick="generateReportPdf()">Generate PDF Report</button>
-        <div id="shareInstructions" style="margin-top: 15px;">
-            <h4>رپورٹ شیئر کرنے کا طریقہ:</h4>
-            <p>جب PDF فائل ڈاؤن لوڈ ہو جائے، تو اسے اپنی ڈیوائس کے فائل مینیجر سے تلاش کریں اور WhatsApp یا کسی اور ایپ پر شیئر کریں۔</p>
+        <button class="btn" id="shareBtn" onclick="shareViaWhatsApp()">Share Day End Summary on WhatsApp</button>
         </div>
-    </div>
 
 
 </div> <script>
@@ -443,7 +458,7 @@
   // --- Basic Authentication ---
   const CORRECT_USER_ID = "admin";
   const CORRECT_PASSWORD = "admin";
-  const WHATSAPP_PHONE_NUMBER = "923442128439"; // User's WhatsApp number
+  const WHATSAPP_PHONE_NUMBER = "923442128439"; // User's WhatsApp number for password recovery and sharing
 
   // WARNING: This is client-side and not secure for sensitive data.
 
@@ -714,16 +729,24 @@
       displayCurrentInventory(); // Update the displayed inventory list
       updateProductDropdown(); // Update the product dropdown
 
+      // Display save confirmation message
+      const saveConfirmationDiv = document.getElementById('saveConfirmation');
+      saveConfirmationDiv.textContent = 'Inventory saved successfully!';
+      setTimeout(() => {
+          saveConfirmationDiv.textContent = ''; // Clear message after a few seconds
+      }, 3000); // Message visible for 3 seconds
+
       console.log('Inventory changes saved!'); // Optional confirmation message
   }
 
   // Remove a product from the inventory (only removes from current inventory, not the dropdown list)
   function removeInventoryItem(productName) {
       if (currentInventory.hasOwnProperty(productName)) {
-          delete currentInventory[productName]; // Remove the product from current inventory
+          delete currentInventory[productName]; // Remove the product from currentInventory
+          // Also remove from allProductsAdded if it's the only instance (optional, keeping it simplifies dropdown)
+          // For now, we keep it in allProductsAdded so it remains an option in the dropdown
           saveInventory(); // Save to localStorage
           displayCurrentInventory(); // Update display (product will disappear from inventory list)
-          // Product remains in allProductsAdded and thus in the dropdown
       }
   }
 
@@ -923,38 +946,41 @@
     }
   }
 
-   // Function to generate PDF report
-  function generateReportPdf() {
-      // Target the new container div that includes report content and inventory
-      const element = document.getElementById('pdfContent');
-      const tableBody = document.querySelector('#dataTable tbody');
-      const rowCount = tableBody.rows.length;
-      console.log(`Attempting to generate PDF from #pdfContent. Rows in table: ${rowCount}`); // Log row count
+   // Removed generateReportPdf function
 
 
-      // Options for html2pdf - adjust as needed for layout
-      const pdfOptions = {
-          margin: 10,
-          filename: 'K-CAFE_Daily_Report.pdf',
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: { scale: 2 },
-          jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+  // Function to share day end summary via WhatsApp
+  function shareViaWhatsApp() {
+      const totalPurchase = document.getElementById('totalPurchaseDisplay').textContent;
+      const totalSale = document.getElementById('totalSaleDisplay').textContent;
+      const profitLoss = document.getElementById('profitLossDisplay').textContent;
 
-      // Add a brief delay to ensure all content is rendered before PDF generation
-      setTimeout(() => {
-          console.log("Generating PDF after delay..."); // Log before generation
-          html2pdf().from(element).set(pdfOptions).save().then(() => {
-               console.log("PDF generation complete."); // Log after generation
-               // Optionally show instructions after PDF generation
-               document.getElementById('shareInstructions').style.display = 'block';
-          }).catch(error => {
-              console.error("Error generating PDF:", error); // Log any errors
-              // Optionally display an error message to the user
+      // Get current inventory balance for the message
+      let inventorySummary = "Current Inventory:\n";
+      const sortedProducts = Object.keys(currentInventory).sort();
+      if (sortedProducts.length === 0) {
+          inventorySummary += "No inventory items added.";
+      } else {
+          sortedProducts.forEach(productName => {
+              const item = currentInventory[productName];
+              inventorySummary += `${productName}: ${item.quantity} (Cost: ${item.unitCost.toFixed(2)} each)\n`;
           });
-      }, 1000); // Increased delay to 1000ms (1 second)
+      }
 
 
+      const message = `*K-CAFE Day End Report*\n\nTotal Purchase Cost: ${totalPurchase}\nTotal Sale Revenue: ${totalSale}\nProfit/Loss: ${profitLoss}\n\n${inventorySummary}`;
+
+      // Use the specified WhatsApp number
+      const phoneNumber = WHATSAPP_PHONE_NUMBER; // Using the constant defined at the top
+
+      // Construct the WhatsApp URL
+      const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(message)}`;
+
+      // Open WhatsApp in a new tab/window
+      window.open(whatsappUrl, '_blank');
+
+      // Optionally hide instructions after attempting to share
+      // document.getElementById('shareInstructions').style.display = 'none'; // Keep instructions visible for clarity
   }
 
 
@@ -967,8 +993,6 @@
   // });
 
 </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 </body>
 </html>
