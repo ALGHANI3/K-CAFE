@@ -761,8 +761,8 @@
           // Also remove from allProductsAdded if it's the only instance (optional, keeping it simplifies dropdown)
           // For now, we keep it in allProductsAdded so it remains an option in the dropdown
           saveInventory(); // Save to localStorage
-          displayCurrentInventory(); // Update display (product will disappear from inventory list)
       }
+      displayCurrentInventory(); // Update display (product will disappear from inventory list)
   }
 
 
@@ -806,7 +806,7 @@
 
             // Calculate Cost of Goods Sold (COGS) for this sale
              // Ensure unitCost is a number, default to 0 if not available
-            const unitCost = currentInventory[product].unitCost ? parseFloat(currentInventory[product].unitCost) : 0;
+            const unitCost = currentInventory.hasOwnProperty(product) && currentInventory[product].unitCost ? parseFloat(currentInventory[product].unitCost) : 0;
             const cogs = quantity * unitCost;
             grandTotalSaleCost += cogs; // Add COGS to grand total COGS
 
@@ -839,7 +839,7 @@
     newRow.dataset.quantity = quantity; // Store quantity
     // Store COGS for Sale entries to revert correctly
     if (entryType === 'Sale') {
-        const unitCost = currentInventory[product].unitCost ? parseFloat(currentInventory[product].unitCost) : 0;
+        const unitCost = currentInventory.hasOwnProperty(product) && currentInventory[product].unitCost ? parseFloat(currentInventory[product].unitCost) : 0;
         newRow.dataset.cogs = quantity * unitCost;
     } else {
          newRow.dataset.cogs = 0; // COGS is 0 for Purchase entries
@@ -965,6 +965,10 @@
   function generateReportPdf() {
       // Target the new container div that includes report content and inventory
       const element = document.getElementById('pdfContent');
+
+      // Log the innerHTML of the target element before PDF generation
+      console.log("Content of #pdfContent before PDF generation:", element.innerHTML);
+
       const tableBody = document.querySelector('#dataTable tbody');
       const rowCount = tableBody.rows.length;
       console.log(`Attempting to generate PDF from #pdfContent. Rows in table: ${rowCount}`); // Log row count
@@ -990,7 +994,7 @@
               console.error("Error generating PDF:", error); // Log any errors
               // Optionally display an error message to the user
           });
-      }, 1000); // Increased delay to 1000ms (1 second)
+      }, 5000); // Increased delay to 5000ms (5 seconds)
 
 
   }
