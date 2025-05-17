@@ -368,7 +368,7 @@
 
 <div id="reportContentWrapper">
 
-    <div id="pdfContent"> <form id="entryForm">
+    <div> <form id="entryForm">
           <label for="entryType">Entry Type:</label>
           <select id="entryType">
             <option value="Sale">Sale</option>
@@ -442,14 +442,14 @@
 
 
     <div style="margin-top: 30px; padding: 20px; background: rgba(255, 255, 255, 0.9); border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-        <h3 style="text-align: center; color: #333; margin-bottom: 15px;">Generate & Share Report</h3>
+        <h3 style="text-align: center; color: #333; margin-bottom: 15px;">Share Report Summary</h3>
         <p style="font-size: 0.9em; color: #777; margin-bottom: 15px;">
-            یہاں آپ رپورٹ کو PDF کے طور پر تیار کر سکتے ہیں یا دن کے اختتام کی سمری WhatsApp پر شیئر کر سکتے ہیں۔
+            یہاں آپ دن کے اختتام کی سمری WhatsApp پر شیئر کر سکتے ہیں۔
         </p>
-        <button class="btn" id="pdfBtn" onclick="generateReportPdf()">Generate PDF Report</button> <button class="btn" id="shareBtn" onclick="shareViaWhatsApp()">Share Day End Summary on WhatsApp</button>
+        <button class="btn" id="shareBtn" onclick="shareViaWhatsApp()">Share Day End Summary on WhatsApp</button>
         <div id="shareInstructions" style="margin-top: 15px;">
             <h4>رپورٹ شیئر کرنے کا طریقہ:</h4>
-            <p>PDF تیار کرنے کے بعد، فائل ڈاؤن لوڈ ہو جائے گی۔ اسے اپنی ڈیوائس کے فائل مینیجر سے تلاش کریں اور WhatsApp یا کسی اور ایپ پر شیئر کریں۔ WhatsApp بٹن صرف سمری کا متن بھیجے گا۔</p>
+            <p>WhatsApp بٹن صرف سمری کا متن بھیجے گا۔</p>
         </div>
     </div>
 
@@ -961,7 +961,8 @@
     }
   }
 
-   // Function to generate PDF report (Export PDF format function)
+   // Function to generate PDF report (Export PDF format function) - REMOVED
+  /*
   function generateReportPdf() {
       // Target the new container div that includes report content and inventory
       const element = document.getElementById('pdfContent');
@@ -998,6 +999,7 @@
 
 
   }
+  */
 
 
   // Function to share day end summary via WhatsApp
@@ -1044,8 +1046,6 @@
   // });
 
 </script>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 </body>
 </html>
